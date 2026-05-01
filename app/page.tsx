@@ -765,23 +765,55 @@ export default function Home() {
     }
   }, [role, selectedFile, files]);
 
-  useEffect(() => {
-    const refreshData = async () => {
-      await fetchProjects();
-      await fetchManualCalendarEvents();
-      await fetchTasks();
-      await fetchPurchases();
+useEffect(() => {
+  const refreshData = async () => {
+    if (
+      showProjectForm ||
+      showCalendarEventForm ||
+      showTaskForm ||
+      showPurchaseForm ||
+      savingProject ||
+      savingCalendarEvent ||
+      savingTask ||
+      savingPurchase
+    ) {
+      return;
+    }
 
-      if (selectedProject) {
-        await fetchFiles(selectedProject.id);
-        await fetchHistory(selectedProject.id);
-      }
-    };
+    const { data: projectsData } = await supabase.from("projects").select("*");
+    const { data: calendarData } = await supabase
+      .from("calendar_events")
+      .select("*")
+      .order("event_date", { ascending: true });
+    const { data: tasksData } = await supabase
+      .from("tasks")
+      .select("*")
+      .eq("is_completed", false)
+      .order("created_at", { ascending: false });
+    const { data: purchasesData } = await supabase
+      .from("project_purchases")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-    const interval = window.setInterval(refreshData, 60000);
+    if (projectsData) setProjects(projectsData as Project[]);
+    if (calendarData) setManualCalendarEvents(calendarData as CalendarEventRow[]);
+    if (tasksData) setTasks(tasksData as Task[]);
+    if (purchasesData) setPurchases(purchasesData as PurchaseItem[]);
+  };
 
-    return () => window.clearInterval(interval);
-  }, [selectedProject]);
+  const interval = window.setInterval(refreshData, 60000);
+
+  return () => window.clearInterval(interval);
+}, [
+  showProjectForm,
+  showCalendarEventForm,
+  showTaskForm,
+  showPurchaseForm,
+  savingProject,
+  savingCalendarEvent,
+  savingTask,
+  savingPurchase,
+]);
 
   const sortedProjects = useMemo(() => {
     const rows = [...projects];
