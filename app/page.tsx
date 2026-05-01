@@ -541,6 +541,7 @@ export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [pin, setPin] = useState("");
   const [pinError, setPinError] = useState("");
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const savedRole = sessionStorage.getItem("aliaj-role");
@@ -548,6 +549,17 @@ export default function Home() {
       setRole(savedRole);
       setIsAuthenticated(true);
     }
+  }, []);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 900);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   const handleLogin = () => {
@@ -753,6 +765,24 @@ export default function Home() {
     }
   }, [role, selectedFile, files]);
 
+  useEffect(() => {
+    const refreshData = async () => {
+      await fetchProjects();
+      await fetchManualCalendarEvents();
+      await fetchTasks();
+      await fetchPurchases();
+
+      if (selectedProject) {
+        await fetchFiles(selectedProject.id);
+        await fetchHistory(selectedProject.id);
+      }
+    };
+
+    const interval = window.setInterval(refreshData, 60000);
+
+    return () => window.clearInterval(interval);
+  }, [selectedProject]);
+
   const sortedProjects = useMemo(() => {
     const rows = [...projects];
 
@@ -829,7 +859,10 @@ export default function Home() {
   }, [projects]);
 
   const completedByYear = useMemo(() => {
-    const map: Record<string, number> = {};
+    const map: Record<string, number> = {
+      "2026": 0,
+      "2027": 0,
+    };
 
     projects.forEach((p) => {
       if (p.status === "Terminé" && p.completed_at) {
@@ -1174,10 +1207,10 @@ export default function Home() {
       return;
     }
 
-    alert("La tâche a bien été terminée.");
     if (selectedTask?.id === task.id) {
       setSelectedTask(null);
     }
+
     await fetchTasks();
   };
 
@@ -1612,7 +1645,6 @@ export default function Home() {
   const goCalendarToday = () => {
     setCalendarCursorDate(new Date());
   };
-
   const renderProjectCard = (project: Project) => {
     const isCompleted = project.status === "Terminé";
     const isSelected = selectedProject?.id === project.id;
@@ -1626,7 +1658,7 @@ export default function Home() {
           textAlign: "left",
           background: isCompleted ? BG_COMPLETED : "white",
           borderRadius: 24,
-          padding: 20,
+          padding: isMobile ? 16 : 20,
           boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
           border: isSelected
             ? `3px solid ${BRAND_BLUE}`
@@ -1648,7 +1680,7 @@ export default function Home() {
           <div>
             <div
               style={{
-                fontSize: 31,
+                fontSize: isMobile ? 24 : 31,
                 fontWeight: 900,
                 color: TEXT_DARK,
                 lineHeight: 1.05,
@@ -1661,7 +1693,7 @@ export default function Home() {
               style={{
                 color: TEXT_MEDIUM,
                 marginTop: 8,
-                fontSize: 18,
+                fontSize: isMobile ? 16 : 18,
                 fontWeight: 700,
               }}
             >
@@ -1676,7 +1708,9 @@ export default function Home() {
           style={{
             marginTop: 16,
             display: "grid",
-            gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
+            gridTemplateColumns: isMobile
+              ? "1fr"
+              : "repeat(5, minmax(0, 1fr))",
             gap: 14,
           }}
         >
@@ -1867,56 +1901,13 @@ export default function Home() {
               alt={selectedFile.file_name}
               style={{
                 width: "100%",
-                maxHeight: 560,
+                maxHeight: isMobile ? 360 : 560,
                 objectFit: "contain",
                 borderRadius: 14,
                 border: "1px solid #e2e8f0",
                 background: BG_SOFT,
               }}
             />
-
-            {imageFiles.length > 1 && (
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(90px, 1fr))",
-                  gap: 10,
-                  marginTop: 14,
-                }}
-              >
-                {imageFiles.map((img) => {
-                  const thumbUrl = getPublicFileUrl(img.file_path);
-                  return (
-                    <button
-                      key={img.id}
-                      onClick={() => setSelectedFile(img)}
-                      style={{
-                        border:
-                          selectedFile?.id === img.id
-                            ? `2px solid ${BRAND_BLUE}`
-                            : "1px solid #e2e8f0",
-                        borderRadius: 12,
-                        padding: 4,
-                        background: "white",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <img
-                        src={thumbUrl}
-                        alt={img.file_name}
-                        style={{
-                          width: "100%",
-                          height: 80,
-                          objectFit: "cover",
-                          borderRadius: 8,
-                          display: "block",
-                        }}
-                      />
-                    </button>
-                  );
-                })}
-              </div>
-            )}
           </>
         ) : pdf ? (
           <iframe
@@ -1924,7 +1915,7 @@ export default function Home() {
             title={selectedFile.file_name}
             style={{
               width: "100%",
-              height: 650,
+              height: isMobile ? 420 : 650,
               border: "1px solid #e2e8f0",
               borderRadius: 14,
               background: "white",
@@ -2005,133 +1996,140 @@ export default function Home() {
         style={{
           background: "white",
           borderRadius: 24,
-          padding: 20,
+          padding: isMobile ? 10 : 20,
           boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+          overflowX: isMobile ? "auto" : "visible",
         }}
       >
         <div
           style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
-            gap: 8,
-            marginBottom: 8,
+            minWidth: isMobile ? 760 : "auto",
           }}
         >
-          {["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map((d, idx) => (
-            <div
-              key={d}
-              style={{
-                padding: "10px 12px",
-                borderRadius: 12,
-                background: idx >= 5 ? WEEKEND_BG : BG_SOFT,
-                color: TEXT_DARK,
-                fontWeight: 900,
-                textAlign: "center",
-              }}
-            >
-              {d}
-            </div>
-          ))}
-        </div>
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
-            gap: 8,
-          }}
-        >
-          {days.map((day) => {
-            const dateKey = toDateOnly(day);
-            const dayEvents = eventsByDate.get(dateKey) || [];
-            const inCurrentMonth = day.getMonth() === calendarCursorDate.getMonth();
-            const weekend = isWeekend(day);
-            const today = isSameDay(day, new Date());
-
-            return (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
+              gap: 8,
+              marginBottom: 8,
+            }}
+          >
+            {["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map((d, idx) => (
               <div
-                key={dateKey}
-                onClick={() => openCalendarEventForm(dateKey)}
+                key={d}
                 style={{
-                  minHeight: 138,
-                  borderRadius: 16,
-                  border: today ? `2px solid ${BRAND_BLUE}` : "1px solid #e2e8f0",
-                  background: weekend ? WEEKEND_BG : "white",
-                  padding: 10,
-                  textAlign: "left",
-                  cursor: "pointer",
-                  opacity: inCurrentMonth ? 1 : 0.5,
+                  padding: "10px 12px",
+                  borderRadius: 12,
+                  background: idx >= 5 ? WEEKEND_BG : BG_SOFT,
+                  color: TEXT_DARK,
+                  fontWeight: 900,
+                  textAlign: "center",
                 }}
               >
+                {d}
+              </div>
+            ))}
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
+              gap: 8,
+            }}
+          >
+            {days.map((day) => {
+              const dateKey = toDateOnly(day);
+              const dayEvents = eventsByDate.get(dateKey) || [];
+              const inCurrentMonth = day.getMonth() === calendarCursorDate.getMonth();
+              const weekend = isWeekend(day);
+              const today = isSameDay(day, new Date());
+
+              return (
                 <div
+                  key={dateKey}
+                  onClick={() => openCalendarEventForm(dateKey)}
                   style={{
-                    fontWeight: 900,
-                    color: TEXT_DARK,
-                    marginBottom: 8,
+                    minHeight: 138,
+                    borderRadius: 16,
+                    border: today ? `2px solid ${BRAND_BLUE}` : "1px solid #e2e8f0",
+                    background: weekend ? WEEKEND_BG : "white",
+                    padding: 10,
+                    textAlign: "left",
+                    cursor: "pointer",
+                    opacity: inCurrentMonth ? 1 : 0.5,
                   }}
                 >
-                  {String(day.getDate()).padStart(2, "0")}
-                </div>
+                  <div
+                    style={{
+                      fontWeight: 900,
+                      color: TEXT_DARK,
+                      marginBottom: 8,
+                    }}
+                  >
+                    {String(day.getDate()).padStart(2, "0")}
+                  </div>
 
-                <div style={{ display: "grid", gap: 6 }}>
-                  {dayEvents.slice(0, 3).map((event) => {
-                    const c = getEventTypeStyle(event.event_type);
-                    return (
-                      <div
-                        key={event.id}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openCalendarEventDetails(event);
-                        }}
-                        style={{
-                          background: c.bg,
-                          color: c.color,
-                          borderRadius: 10,
-                          padding: "7px 8px",
-                          fontWeight: 800,
-                          overflow: "hidden",
-                          cursor: "pointer",
-                        }}
-                        title={event.title}
-                      >
+                  <div style={{ display: "grid", gap: 6 }}>
+                    {dayEvents.slice(0, 3).map((event) => {
+                      const c = getEventTypeStyle(event.event_type);
+                      return (
                         <div
-                          style={{
-                            fontSize: 12,
-                            lineHeight: 1.2,
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
+                          key={event.id}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openCalendarEventDetails(event);
                           }}
-                        >
-                          {event.start_time ? `${event.start_time.slice(0, 5)} · ` : ""}
-                          {getCalendarMainText(event)}
-                        </div>
-                        <div
                           style={{
-                            fontSize: 11,
-                            lineHeight: 1.2,
-                            marginTop: 2,
-                            whiteSpace: "nowrap",
+                            background: c.bg,
+                            color: c.color,
+                            borderRadius: 10,
+                            padding: "7px 8px",
+                            fontWeight: 800,
                             overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            opacity: 0.95,
+                            cursor: "pointer",
                           }}
+                          title={event.title}
                         >
-                          {getCalendarSubText(event)}
+                          <div
+                            style={{
+                              fontSize: 12,
+                              lineHeight: 1.2,
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            {event.start_time ? `${event.start_time.slice(0, 5)} · ` : ""}
+                            {getCalendarMainText(event)}
+                          </div>
+                          <div
+                            style={{
+                              fontSize: 11,
+                              lineHeight: 1.2,
+                              marginTop: 2,
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              opacity: 0.95,
+                            }}
+                          >
+                            {getCalendarSubText(event)}
+                          </div>
                         </div>
+                      );
+                    })}
+
+                    {dayEvents.length > 3 && (
+                      <div style={{ fontSize: 12, color: TEXT_LIGHT, fontWeight: 700 }}>
+                        + {dayEvents.length - 3} autre(s)
                       </div>
-                    );
-                  })}
-
-                  {dayEvents.length > 3 && (
-                    <div style={{ fontSize: 12, color: TEXT_LIGHT, fontWeight: 700 }}>
-                      + {dayEvents.length - 3} autre(s)
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
     );
@@ -2145,7 +2143,7 @@ export default function Home() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
+          gridTemplateColumns: isMobile ? "1fr" : "repeat(7, minmax(0, 1fr))",
           gap: 10,
         }}
       >
@@ -2164,7 +2162,7 @@ export default function Home() {
                 padding: 16,
                 boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
                 border: today ? `2px solid ${BRAND_BLUE}` : "1px solid #e2e8f0",
-                minHeight: 360,
+                minHeight: isMobile ? "auto" : 360,
               }}
             >
               <div
@@ -2251,55 +2249,6 @@ export default function Home() {
                               }`
                             : "Journée"}
                         </div>
-
-                        {event.address && (
-                          <div style={{ fontSize: 12, marginTop: 4 }}>{event.address}</div>
-                        )}
-
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: 8,
-                            flexWrap: "wrap",
-                            marginTop: 10,
-                          }}
-                        >
-                          {event.project_id && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                openLinkedProjectFromEvent(event);
-                              }}
-                              style={calendarTinyButton}
-                            >
-                              Ouvrir projet
-                            </button>
-                          )}
-
-                          {event.source === "manual" && role === "bureau" && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                editManualCalendarEvent(event);
-                              }}
-                              style={calendarTinyButton}
-                            >
-                              Modifier
-                            </button>
-                          )}
-
-                          {event.source === "manual" && role === "bureau" && (
-                            <button
-                              onClick={async (e) => {
-                                e.stopPropagation();
-                                await deleteManualCalendarEvent(event);
-                              }}
-                              style={calendarTinyDeleteButton}
-                            >
-                              Supprimer
-                            </button>
-                          )}
-                        </div>
                       </div>
                     );
                   })
@@ -2339,17 +2288,15 @@ export default function Home() {
             flexWrap: "wrap",
           }}
         >
-          <div>
-            <div
-              style={{
-                fontSize: 28,
-                fontWeight: 900,
-                color: TEXT_DARK,
-                textTransform: "capitalize",
-              }}
-            >
-              {dayLabel(calendarCursorDate)}
-            </div>
+          <div
+            style={{
+              fontSize: isMobile ? 22 : 28,
+              fontWeight: 900,
+              color: TEXT_DARK,
+              textTransform: "capitalize",
+            }}
+          >
+            {dayLabel(calendarCursorDate)}
           </div>
 
           <button onClick={() => openCalendarEventForm(dateKey)} style={blueButtonTop}>
@@ -2389,7 +2336,7 @@ export default function Home() {
                   <div style={{ padding: 14 }}>
                     <div
                       style={{
-                        fontSize: 26,
+                        fontSize: isMobile ? 22 : 26,
                         fontWeight: 900,
                         color: TEXT_DARK,
                         marginBottom: 4,
@@ -2425,51 +2372,6 @@ export default function Home() {
                       <div>
                         <strong>Notes :</strong> {event.notes || "-"}
                       </div>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: 10,
-                        flexWrap: "wrap",
-                        marginTop: 14,
-                      }}
-                    >
-                      {event.project_id && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openLinkedProjectFromEvent(event);
-                          }}
-                          style={outlineButton}
-                        >
-                          Ouvrir le projet lié
-                        </button>
-                      )}
-
-                      {event.source === "manual" && role === "bureau" && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            editManualCalendarEvent(event);
-                          }}
-                          style={lightButton}
-                        >
-                          Modifier
-                        </button>
-                      )}
-
-                      {event.source === "manual" && role === "bureau" && (
-                        <button
-                          onClick={async (e) => {
-                            e.stopPropagation();
-                            await deleteManualCalendarEvent(event);
-                          }}
-                          style={redButton}
-                        >
-                          Supprimer l'événement
-                        </button>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -2526,49 +2428,41 @@ export default function Home() {
             Ajouter une tâche
           </div>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-              gap: 18,
-            }}
-          >
+          <input
+            placeholder="Titre de la tâche"
+            value={taskForm.title}
+            onChange={(e) =>
+              setTaskForm({ ...taskForm, title: e.target.value })
+            }
+            style={bigInputStyle}
+          />
+
+          <div style={{ marginTop: 14 }}>
+            <div style={bigLabelStyle}>Date limite</div>
             <input
-              placeholder="Titre de la tâche"
-              value={taskForm.title}
+              type="date"
+              value={taskForm.due_date}
               onChange={(e) =>
-                setTaskForm({ ...taskForm, title: e.target.value })
+                setTaskForm({ ...taskForm, due_date: e.target.value })
               }
               style={bigInputStyle}
             />
+          </div>
 
-            <div>
-              <div style={bigLabelStyle}>Date limite</div>
-              <input
-                type="date"
-                value={taskForm.due_date}
-                onChange={(e) =>
-                  setTaskForm({ ...taskForm, due_date: e.target.value })
-                }
-                style={bigInputStyle}
-              />
-            </div>
-
-            <div style={{ gridColumn: "1 / -1" }}>
-              <div style={bigLabelStyle}>Description</div>
-              <textarea
-                placeholder="Détails de la tâche..."
-                value={taskForm.description}
-                onChange={(e) =>
-                  setTaskForm({ ...taskForm, description: e.target.value })
-                }
-                style={{
-                  ...bigInputStyle,
-                  minHeight: 140,
-                  resize: "vertical",
-                }}
-              />
-            </div>
+          <div style={{ marginTop: 14 }}>
+            <div style={bigLabelStyle}>Description</div>
+            <textarea
+              placeholder="Détails de la tâche..."
+              value={taskForm.description}
+              onChange={(e) =>
+                setTaskForm({ ...taskForm, description: e.target.value })
+              }
+              style={{
+                ...bigInputStyle,
+                minHeight: 140,
+                resize: "vertical",
+              }}
+            />
           </div>
 
           <div
@@ -2584,8 +2478,6 @@ export default function Home() {
               disabled={savingTask}
               style={{
                 ...blueButtonTop,
-                padding: "14px 22px",
-                fontSize: 15,
                 opacity: savingTask ? 0.7 : 1,
               }}
             >
@@ -2597,11 +2489,7 @@ export default function Home() {
                 setShowTaskForm(false);
                 setTaskForm(emptyTaskForm);
               }}
-              style={{
-                ...outlineButtonTop,
-                padding: "14px 22px",
-                fontSize: 15,
-              }}
+              style={outlineButtonTop}
             >
               Annuler
             </button>
@@ -2612,7 +2500,7 @@ export default function Home() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1.1fr 0.9fr",
+          gridTemplateColumns: isMobile ? "1fr" : "1.1fr 0.9fr",
           gap: 20,
           alignItems: "start",
         }}
@@ -2647,7 +2535,6 @@ export default function Home() {
                     display: "grid",
                     gridTemplateColumns: "52px 1fr",
                     gap: 14,
-                    alignItems: "stretch",
                     border: "1px solid #e2e8f0",
                     borderRadius: 22,
                     padding: 16,
@@ -2664,7 +2551,6 @@ export default function Home() {
                       border: `2px solid ${BRAND_BLUE}`,
                       background: "white",
                       cursor: "pointer",
-                      alignSelf: "flex-start",
                       marginTop: 6,
                     }}
                   />
@@ -2681,7 +2567,7 @@ export default function Home() {
                   >
                     <div
                       style={{
-                        fontSize: 28,
+                        fontSize: isMobile ? 22 : 28,
                         fontWeight: 900,
                         color: TEXT_DARK,
                         lineHeight: 1.1,
@@ -2703,21 +2589,6 @@ export default function Home() {
                       <span>Créée : {formatDateTime(task.created_at)}</span>
                       <span>À terminer : {formatDate(task.due_date)}</span>
                     </div>
-
-                    {task.description && (
-                      <div
-                        style={{
-                          marginTop: 10,
-                          color: TEXT_LIGHT,
-                          fontSize: 14,
-                          lineHeight: 1.5,
-                        }}
-                      >
-                        {task.description.length > 140
-                          ? `${task.description.slice(0, 140)}...`
-                          : task.description}
-                      </div>
-                    )}
                   </button>
                 </div>
               ))
@@ -2732,6 +2603,9 @@ export default function Home() {
             padding: 20,
             boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
             minHeight: 260,
+            position: isMobile ? "static" : "sticky",
+            top: 24,
+            alignSelf: "start",
           }}
         >
           <div
@@ -2749,7 +2623,7 @@ export default function Home() {
             <div style={{ display: "grid", gap: 14 }}>
               <div
                 style={{
-                  fontSize: 30,
+                  fontSize: isMobile ? 24 : 30,
                   fontWeight: 900,
                   color: TEXT_DARK,
                   lineHeight: 1.1,
@@ -2789,21 +2663,12 @@ export default function Home() {
                 </div>
               </div>
 
-              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                <button
-                  onClick={() => completeTask(selectedTask)}
-                  style={greenButton}
-                >
-                  Terminer la tâche
-                </button>
-
-                <button
-                  onClick={() => setSelectedTask(null)}
-                  style={outlineButton}
-                >
-                  Fermer
-                </button>
-              </div>
+              <button
+                onClick={() => completeTask(selectedTask)}
+                style={greenButton}
+              >
+                Terminer la tâche
+              </button>
             </div>
           ) : (
             <div style={{ color: TEXT_LIGHT, lineHeight: 1.7 }}>
@@ -2814,6 +2679,7 @@ export default function Home() {
       </div>
     </div>
   );
+
   const renderPurchases = () => (
     <div style={{ marginTop: 24, display: "grid", gap: 24 }}>
       <div
@@ -2862,7 +2728,7 @@ export default function Home() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+              gridTemplateColumns: isMobile ? "1fr" : "repeat(2, minmax(0, 1fr))",
               gap: 18,
             }}
           >
@@ -2901,10 +2767,10 @@ export default function Home() {
               </select>
             </div>
 
-            <div style={{ gridColumn: "1 / -1" }}>
+            <div style={{ gridColumn: isMobile ? "auto" : "1 / -1" }}>
               <div style={bigLabelStyle}>Quoi acheter</div>
               <textarea
-                placeholder="Ex: panneau blanc mat 2800x2070, 4 charnières, chants assortis..."
+                placeholder="Ex: panneau blanc mat, charnières, chants..."
                 value={purchaseForm.description}
                 onChange={(e) =>
                   setPurchaseForm({ ...purchaseForm, description: e.target.value })
@@ -2918,23 +2784,11 @@ export default function Home() {
             </div>
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              gap: 12,
-              marginTop: 22,
-              flexWrap: "wrap",
-            }}
-          >
+          <div style={{ display: "flex", gap: 12, marginTop: 22, flexWrap: "wrap" }}>
             <button
               onClick={savePurchase}
               disabled={savingPurchase}
-              style={{
-                ...blueButtonTop,
-                padding: "14px 22px",
-                fontSize: 15,
-                opacity: savingPurchase ? 0.7 : 1,
-              }}
+              style={{ ...blueButtonTop, opacity: savingPurchase ? 0.7 : 1 }}
             >
               {savingPurchase ? "Enregistrement..." : "Enregistrer"}
             </button>
@@ -2944,11 +2798,7 @@ export default function Home() {
                 setShowPurchaseForm(false);
                 setPurchaseForm(emptyPurchaseForm);
               }}
-              style={{
-                ...outlineButtonTop,
-                padding: "14px 22px",
-                fontSize: 15,
-              }}
+              style={outlineButtonTop}
             >
               Annuler
             </button>
@@ -2959,7 +2809,7 @@ export default function Home() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1.1fr 0.9fr",
+          gridTemplateColumns: isMobile ? "1fr" : "1.1fr 0.9fr",
           gap: 20,
           alignItems: "start",
         }}
@@ -2995,7 +2845,6 @@ export default function Home() {
                       display: "grid",
                       gridTemplateColumns: "52px 1fr",
                       gap: 14,
-                      alignItems: "stretch",
                       border: "1px solid #e2e8f0",
                       borderRadius: 22,
                       padding: 16,
@@ -3012,7 +2861,6 @@ export default function Home() {
                         border: `2px solid ${BRAND_BLUE}`,
                         background: "white",
                         cursor: "pointer",
-                        alignSelf: "flex-start",
                         marginTop: 6,
                       }}
                     />
@@ -3029,7 +2877,7 @@ export default function Home() {
                     >
                       <div
                         style={{
-                          fontSize: 28,
+                          fontSize: isMobile ? 22 : 28,
                           fontWeight: 900,
                           color: TEXT_DARK,
                           lineHeight: 1.1,
@@ -3073,9 +2921,7 @@ export default function Home() {
                           lineHeight: 1.5,
                         }}
                       >
-                        {item.description.length > 140
-                          ? `${item.description.slice(0, 140)}...`
-                          : item.description}
+                        {item.description}
                       </div>
                     </button>
                   </div>
@@ -3136,7 +2982,6 @@ export default function Home() {
                         display: "grid",
                         gridTemplateColumns: "52px 1fr",
                         gap: 14,
-                        alignItems: "stretch",
                         border: "1px solid #e2e8f0",
                         borderRadius: 22,
                         padding: 16,
@@ -3153,7 +2998,6 @@ export default function Home() {
                           border: `2px solid ${BRAND_BLUE}`,
                           background: BRAND_BLUE,
                           cursor: "pointer",
-                          alignSelf: "flex-start",
                           marginTop: 6,
                         }}
                       />
@@ -3170,7 +3014,7 @@ export default function Home() {
                       >
                         <div
                           style={{
-                            fontSize: 28,
+                            fontSize: isMobile ? 22 : 28,
                             fontWeight: 900,
                             color: TEXT_DARK,
                             lineHeight: 1.1,
@@ -3189,22 +3033,6 @@ export default function Home() {
                         >
                           {item.project_number}
                         </div>
-
-                        <div
-                          style={{
-                            marginTop: 10,
-                            display: "inline-block",
-                            padding: "6px 10px",
-                            borderRadius: 999,
-                            background: "white",
-                            border: "1px solid #e2e8f0",
-                            color: TEXT_DARK,
-                            fontWeight: 800,
-                            fontSize: 13,
-                          }}
-                        >
-                          {item.item_type}
-                        </div>
                       </button>
                     </div>
                   ))
@@ -3221,6 +3049,9 @@ export default function Home() {
             padding: 20,
             boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
             minHeight: 260,
+            position: isMobile ? "static" : "sticky",
+            top: 24,
+            alignSelf: "start",
           }}
         >
           <div
@@ -3238,7 +3069,7 @@ export default function Home() {
             <div style={{ display: "grid", gap: 14 }}>
               <div
                 style={{
-                  fontSize: 30,
+                  fontSize: isMobile ? 24 : 30,
                   fontWeight: 900,
                   color: TEXT_DARK,
                   lineHeight: 1.1,
@@ -3295,16 +3126,6 @@ export default function Home() {
                 />
               </div>
 
-              <div style={{ color: TEXT_MEDIUM, lineHeight: 1.8 }}>
-                <div>
-                  <strong>Créé le :</strong> {formatDateTime(selectedPurchase.created_at)}
-                </div>
-                <div>
-                  <strong>Statut :</strong>{" "}
-                  {selectedPurchase.is_completed ? "Terminé" : "En cours"}
-                </div>
-              </div>
-
               <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
                 <button onClick={updatePurchase} style={blueButtonTop}>
                   Modifier
@@ -3325,19 +3146,11 @@ export default function Home() {
                 >
                   Supprimer
                 </button>
-
-                <button
-                  onClick={() => setSelectedPurchase(null)}
-                  style={outlineButton}
-                >
-                  Fermer
-                </button>
               </div>
             </div>
           ) : (
             <div style={{ color: TEXT_LIGHT, lineHeight: 1.7 }}>
-              Clique sur un achat projet dans la liste pour voir son détail,
-              le modifier ou le supprimer.
+              Clique sur un achat projet pour voir son détail.
             </div>
           )}
         </div>
@@ -3468,7 +3281,7 @@ export default function Home() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+              gridTemplateColumns: isMobile ? "1fr" : "repeat(2, minmax(0, 1fr))",
               gap: 18,
             }}
           >
@@ -3495,57 +3308,45 @@ export default function Home() {
               ))}
             </select>
 
-            <div>
-              <div style={bigLabelStyle}>Date</div>
-              <input
-                type="date"
-                value={calendarForm.event_date}
-                onChange={(e) =>
-                  setCalendarForm({ ...calendarForm, event_date: e.target.value })
-                }
-                style={bigInputStyle}
-              />
-            </div>
+            <input
+              type="date"
+              value={calendarForm.event_date}
+              onChange={(e) =>
+                setCalendarForm({ ...calendarForm, event_date: e.target.value })
+              }
+              style={bigInputStyle}
+            />
 
-            <div>
-              <div style={bigLabelStyle}>Projet lié (optionnel)</div>
-              <select
-                value={calendarForm.project_id}
-                onChange={(e) => handleCalendarProjectChange(e.target.value)}
-                style={bigInputStyle}
-              >
-                <option value="">Aucun projet</option>
-                {sortedProjects.map((p) => (
-                  <option key={p.id} value={String(p.id)}>
-                    {p.project_number} - {p.client_name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <select
+              value={calendarForm.project_id}
+              onChange={(e) => handleCalendarProjectChange(e.target.value)}
+              style={bigInputStyle}
+            >
+              <option value="">Aucun projet</option>
+              {sortedProjects.map((p) => (
+                <option key={p.id} value={String(p.id)}>
+                  {p.project_number} - {p.client_name}
+                </option>
+              ))}
+            </select>
 
-            <div>
-              <div style={bigLabelStyle}>Heure début</div>
-              <input
-                type="time"
-                value={calendarForm.start_time}
-                onChange={(e) =>
-                  setCalendarForm({ ...calendarForm, start_time: e.target.value })
-                }
-                style={bigInputStyle}
-              />
-            </div>
+            <input
+              type="time"
+              value={calendarForm.start_time}
+              onChange={(e) =>
+                setCalendarForm({ ...calendarForm, start_time: e.target.value })
+              }
+              style={bigInputStyle}
+            />
 
-            <div>
-              <div style={bigLabelStyle}>Heure fin</div>
-              <input
-                type="time"
-                value={calendarForm.end_time}
-                onChange={(e) =>
-                  setCalendarForm({ ...calendarForm, end_time: e.target.value })
-                }
-                style={bigInputStyle}
-              />
-            </div>
+            <input
+              type="time"
+              value={calendarForm.end_time}
+              onChange={(e) =>
+                setCalendarForm({ ...calendarForm, end_time: e.target.value })
+              }
+              style={bigInputStyle}
+            />
 
             <input
               placeholder="Nom client"
@@ -3565,40 +3366,26 @@ export default function Home() {
               style={bigInputStyle}
             />
 
-            <div style={{ gridColumn: "1 / -1" }}>
-              <div style={bigLabelStyle}>Notes</div>
-              <textarea
-                placeholder="Informations complémentaires"
-                value={calendarForm.notes}
-                onChange={(e) =>
-                  setCalendarForm({ ...calendarForm, notes: e.target.value })
-                }
-                style={{
-                  ...bigInputStyle,
-                  minHeight: 140,
-                  resize: "vertical",
-                }}
-              />
-            </div>
+            <textarea
+              placeholder="Notes"
+              value={calendarForm.notes}
+              onChange={(e) =>
+                setCalendarForm({ ...calendarForm, notes: e.target.value })
+              }
+              style={{
+                ...bigInputStyle,
+                minHeight: 140,
+                resize: "vertical",
+                gridColumn: isMobile ? "auto" : "1 / -1",
+              }}
+            />
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              gap: 12,
-              marginTop: 22,
-              flexWrap: "wrap",
-            }}
-          >
+          <div style={{ display: "flex", gap: 12, marginTop: 22, flexWrap: "wrap" }}>
             <button
               onClick={saveCalendarEvent}
               disabled={savingCalendarEvent}
-              style={{
-                ...blueButtonTop,
-                padding: "14px 22px",
-                fontSize: 15,
-                opacity: savingCalendarEvent ? 0.7 : 1,
-              }}
+              style={{ ...blueButtonTop, opacity: savingCalendarEvent ? 0.7 : 1 }}
             >
               {savingCalendarEvent ? "Enregistrement..." : "Enregistrer"}
             </button>
@@ -3608,11 +3395,7 @@ export default function Home() {
                 setShowCalendarEventForm(false);
                 setCalendarForm(emptyCalendarForm);
               }}
-              style={{
-                ...outlineButtonTop,
-                padding: "14px 22px",
-                fontSize: 15,
-              }}
+              style={outlineButtonTop}
             >
               Annuler
             </button>
@@ -3631,14 +3414,14 @@ export default function Home() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+          gridTemplateColumns: isMobile ? "1fr" : "repeat(4, minmax(0, 1fr))",
           gap: 16,
         }}
       >
         <StatCard
           title="PROJETS EN COURS"
           value={projects.filter((p) => p.status !== "Terminé").length}
-          big
+          big={!isMobile}
         />
         <StatCard title="EN FABRICATION" value={fabricationCount} />
         <StatCard title="PRÊTS POUR POSE" value={readyInstallCount} />
@@ -3647,7 +3430,7 @@ export default function Home() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1.15fr 1fr",
+          gridTemplateColumns: isMobile ? "1fr" : "1.15fr 1fr",
           gap: 20,
           alignItems: "start",
         }}
@@ -3680,7 +3463,15 @@ export default function Home() {
           </div>
         </div>
 
-        <div style={{ display: "grid", gap: 20 }}>
+        <div
+          style={{
+            display: "grid",
+            gap: 20,
+            position: isMobile ? "static" : "sticky",
+            top: 24,
+            alignSelf: "start",
+          }}
+        >
           {selectedProject ? (
             <>
               <ProjectInfoCard
@@ -3710,6 +3501,7 @@ export default function Home() {
                 imageFiles={imageFiles}
                 renderFileButton={renderFileButton}
                 renderPreview={renderPreview}
+                isMobile={isMobile}
               />
 
               {renderHistoryToggleBlock()}
@@ -3735,71 +3527,10 @@ export default function Home() {
                 Aucun projet sélectionné
               </div>
               <div style={{ lineHeight: 1.7 }}>
-                Clique sur un projet dans la liste de gauche pour afficher sa
-                fiche complète, ses fichiers et son historique.
+                Clique sur un projet dans la liste pour afficher sa fiche complète.
               </div>
             </div>
           )}
-
-          <div
-            style={{
-              background: "white",
-              borderRadius: 24,
-              padding: 20,
-              boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
-            }}
-          >
-            <div
-              style={{
-                fontSize: 22,
-                fontWeight: 900,
-                color: TEXT_DARK,
-                marginBottom: 16,
-              }}
-            >
-              Projets terminés par année
-            </div>
-
-            <div style={{ display: "grid", gap: 12 }}>
-              {completedByYear.length === 0 ? (
-                <div style={{ color: TEXT_LIGHT }}>
-                  Aucun projet terminé.
-                </div>
-              ) : (
-                completedByYear.map(([year, total]) => (
-                  <div
-                    key={year}
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      border: "1px solid #e2e8f0",
-                      borderRadius: 18,
-                      padding: "14px 16px",
-                    }}
-                  >
-                    <span
-                      style={{
-                        color: TEXT_MEDIUM,
-                        fontWeight: 800,
-                      }}
-                    >
-                      {year}
-                    </span>
-                    <span
-                      style={{
-                        color: TEXT_DARK,
-                        fontWeight: 900,
-                        fontSize: 26,
-                      }}
-                    >
-                      {total}
-                    </span>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
         </div>
       </div>
 
@@ -3889,6 +3620,7 @@ export default function Home() {
           alignItems: "center",
           background: "#f1f5f9",
           fontFamily: "Arial, sans-serif",
+          padding: 20,
         }}
       >
         <div
@@ -3898,7 +3630,8 @@ export default function Home() {
             borderRadius: 20,
             boxShadow: "0 5px 20px rgba(0,0,0,0.1)",
             textAlign: "center",
-            width: 360,
+            width: "100%",
+            maxWidth: 360,
           }}
         >
           <div
@@ -3970,54 +3703,70 @@ export default function Home() {
         fontFamily: "Arial, sans-serif",
       }}
     >
-      <div style={{ display: "flex", minHeight: "100vh" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: isMobile ? "column" : "row",
+          minHeight: "100vh",
+        }}
+      >
         <aside
           style={{
-            width: 270,
+            width: isMobile ? "100%" : 270,
             background: BRAND_BLUE,
             color: "white",
-            padding: 24,
+            padding: isMobile ? 16 : 24,
             display: "flex",
-            flexDirection: "column",
+            flexDirection: isMobile ? "row" : "column",
             justifyContent: "space-between",
+            gap: 16,
+            overflowX: isMobile ? "auto" : "visible",
           }}
         >
           <div>
+            {!isMobile && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 14,
+                  marginBottom: 28,
+                }}
+              >
+                <img
+                  src="/Logo.png"
+                  alt="Logo"
+                  style={{
+                    width: 82,
+                    height: 82,
+                    objectFit: "contain",
+                    background: "white",
+                    borderRadius: 999,
+                    padding: 4,
+                    border: "2px solid rgba(255,255,255,0.15)",
+                  }}
+                />
+                <div>
+                  <div style={{ fontSize: 12, opacity: 0.8 }}>
+                    Application interne
+                  </div>
+                  <div style={{ fontWeight: 900, letterSpacing: 0.5 }}>
+                    ALIAJ INTERIOR
+                  </div>
+                  <div style={{ fontSize: 12, opacity: 0.8, marginTop: 4 }}>
+                    Vue {role === "bureau" ? "Bureau" : "Atelier"}
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div
               style={{
                 display: "flex",
-                alignItems: "center",
-                gap: 14,
-                marginBottom: 28,
+                flexDirection: isMobile ? "row" : "column",
+                gap: 10,
               }}
             >
-              <img
-                src="/Logo.png"
-                alt="Logo"
-                style={{
-                  width: 82,
-                  height: 82,
-                  objectFit: "contain",
-                  background: "white",
-                  borderRadius: 999,
-                  padding: 4,
-                  border: "2px solid rgba(255,255,255,0.15)",
-                }}
-              />
-              <div>
-                <div style={{ fontSize: 12, opacity: 0.8 }}>
-                  Application interne
-                </div>
-                <div style={{ fontWeight: 900, letterSpacing: 0.5 }}>
-                  ALIAJ INTERIOR
-                </div>
-                <div style={{ fontSize: 12, opacity: 0.8, marginTop: 4 }}>
-                  Vue {role === "bureau" ? "Bureau" : "Atelier"}
-                </div>
-              </div>
-            </div>
-
-            <div style={{ display: "grid", gap: 10 }}>
               <button
                 onClick={() => setActiveTab("projects")}
                 style={activeTab === "projects" ? sidebarActiveButton : sidebarButton}
@@ -4050,14 +3799,12 @@ export default function Home() {
             </div>
           </div>
 
-          <div>
-            <button onClick={handleLogout} style={sidebarActiveButton}>
-              Déconnexion
-            </button>
-          </div>
+          <button onClick={handleLogout} style={sidebarActiveButton}>
+            Déconnexion
+          </button>
         </aside>
 
-        <section style={{ flex: 1, padding: 24 }}>
+        <section style={{ flex: 1, padding: isMobile ? 12 : 24 }}>
           <div
             style={{
               background: "white",
@@ -4065,12 +3812,11 @@ export default function Home() {
               padding: 20,
               boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
               display: "grid",
-              gridTemplateColumns:
-                activeTab === "projects"
-                  ? "auto 1fr 240px 220px auto"
-                  : activeTab === "calendar"
-                  ? "auto 1fr auto"
-                  : "auto 1fr auto",
+              gridTemplateColumns: isMobile
+                ? "1fr"
+                : activeTab === "projects"
+                ? "auto 1fr 240px 220px auto"
+                : "auto 1fr auto",
               gap: 16,
               alignItems: "center",
             }}
@@ -4080,8 +3826,8 @@ export default function Home() {
                 src="/Logo.png"
                 alt="Logo"
                 style={{
-                  width: 72,
-                  height: 72,
+                  width: isMobile ? 54 : 72,
+                  height: isMobile ? 54 : 72,
                   objectFit: "contain",
                   background: "white",
                   borderRadius: 999,
@@ -4092,7 +3838,7 @@ export default function Home() {
               <div>
                 <div
                   style={{
-                    fontSize: 28,
+                    fontSize: isMobile ? 21 : 28,
                     fontWeight: 900,
                     color: TEXT_DARK,
                   }}
@@ -4100,78 +3846,72 @@ export default function Home() {
                   Aliaj Interior — Dashboard
                 </div>
                 <div style={{ color: TEXT_LIGHT }}>
-                  Gestion de projets menuiserie · Bureau + Atelier
+                  Gestion de projets menuiserie
                 </div>
               </div>
             </div>
 
             {activeTab === "projects" ? (
               <>
-                <div>
-                  <input
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Rechercher par client, numéro projet, adresse, date fabrication ou statut..."
-                    style={{
-                      ...inputStyle,
-                      width: "100%",
-                      padding: "16px 18px",
-                      fontSize: 15,
-                      fontWeight: 700,
-                    }}
-                  />
-                </div>
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Rechercher..."
+                  style={{
+                    ...inputStyle,
+                    width: "100%",
+                    padding: "16px 18px",
+                    fontSize: 15,
+                    fontWeight: 700,
+                  }}
+                />
 
-                <div>
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    style={{
-                      ...inputStyle,
-                      width: "100%",
-                      padding: "16px 18px",
-                      fontWeight: 800,
-                      background: statusFilter ? "white" : FILTER_CLEAR_BG,
-                      color: statusFilter ? TEXT_DARK : FILTER_CLEAR_COLOR,
-                      borderColor: statusFilter ? BORDER : "#fecaca",
-                    }}
-                  >
-                    <option value="">Aucun filtre statut</option>
-                    {STATUS_OPTIONS.map((status) => (
-                      <option key={status} value={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  style={{
+                    ...inputStyle,
+                    width: "100%",
+                    padding: "16px 18px",
+                    fontWeight: 800,
+                    background: statusFilter ? "white" : FILTER_CLEAR_BG,
+                    color: statusFilter ? TEXT_DARK : FILTER_CLEAR_COLOR,
+                    borderColor: statusFilter ? BORDER : "#fecaca",
+                  }}
+                >
+                  <option value="">Aucun filtre statut</option>
+                  {STATUS_OPTIONS.map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </select>
 
-                <div>
-                  <select
-                    value={projectSort}
-                    onChange={(e) =>
-                      setProjectSort(e.target.value as ProjectSortOption)
-                    }
-                    style={{
-                      ...inputStyle,
-                      width: "100%",
-                      padding: "16px 18px",
-                      fontWeight: 800,
-                    }}
-                  >
-                    <option value="fabrication_desc">Tri : fabrication ↓</option>
-                    <option value="installation_asc">Tri : pose ↑</option>
-                    <option value="client_asc">Tri : client A → Z</option>
-                    <option value="project_number_asc">Tri : numéro projet</option>
-                    <option value="status_asc">Tri : statut</option>
-                  </select>
-                </div>
+                <select
+                  value={projectSort}
+                  onChange={(e) =>
+                    setProjectSort(e.target.value as ProjectSortOption)
+                  }
+                  style={{
+                    ...inputStyle,
+                    width: "100%",
+                    padding: "16px 18px",
+                    fontWeight: 800,
+                  }}
+                >
+                  <option value="fabrication_desc">Tri : fabrication ↓</option>
+                  <option value="installation_asc">Tri : pose ↑</option>
+                  <option value="client_asc">Tri : client A → Z</option>
+                  <option value="project_number_asc">Tri : numéro projet</option>
+                  <option value="status_asc">Tri : statut</option>
+                </select>
 
                 <div
                   style={{
                     display: "flex",
                     gap: 10,
                     flexWrap: "wrap",
-                    justifyContent: "flex-end",
+                    justifyContent: isMobile ? "flex-start" : "flex-end",
                   }}
                 >
                   {role === "bureau" && (
@@ -4204,17 +3944,7 @@ export default function Home() {
                 <div style={{ color: TEXT_LIGHT, fontWeight: 700 }}>
                   Vue calendrier partagée entre Bureau et Atelier
                 </div>
-
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 10,
-                    flexWrap: "wrap",
-                    justifyContent: "flex-end",
-                    color: TEXT_LIGHT,
-                    fontWeight: 800,
-                  }}
-                >
+                <div style={{ color: TEXT_LIGHT, fontWeight: 800 }}>
                   Interface {role === "bureau" ? "Bureau" : "Atelier"}
                 </div>
               </>
@@ -4224,21 +3954,12 @@ export default function Home() {
                   Gestion simple des tâches à effectuer
                 </div>
 
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 10,
-                    flexWrap: "wrap",
-                    justifyContent: "flex-end",
-                  }}
+                <button
+                  onClick={() => setShowTaskForm((prev) => !prev)}
+                  style={blueButtonTop}
                 >
-                  <button
-                    onClick={() => setShowTaskForm((prev) => !prev)}
-                    style={blueButtonTop}
-                  >
-                    {showTaskForm ? "Fermer" : "+ Nouvelle tâche"}
-                  </button>
-                </div>
+                  {showTaskForm ? "Fermer" : "+ Nouvelle tâche"}
+                </button>
               </>
             ) : (
               <>
@@ -4246,21 +3967,12 @@ export default function Home() {
                   Gestion des achats liés aux projets
                 </div>
 
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 10,
-                    flexWrap: "wrap",
-                    justifyContent: "flex-end",
-                  }}
+                <button
+                  onClick={() => setShowPurchaseForm((prev) => !prev)}
+                  style={blueButtonTop}
                 >
-                  <button
-                    onClick={() => setShowPurchaseForm((prev) => !prev)}
-                    style={blueButtonTop}
-                  >
-                    {showPurchaseForm ? "Fermer" : "+ Achat projet"}
-                  </button>
-                </div>
+                  {showPurchaseForm ? "Fermer" : "+ Achat projet"}
+                </button>
               </>
             )}
           </div>
@@ -4290,7 +4002,7 @@ export default function Home() {
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                  gridTemplateColumns: isMobile ? "1fr" : "repeat(2, minmax(0, 1fr))",
                   gap: 18,
                 }}
               >
@@ -4352,74 +4064,51 @@ export default function Home() {
                   <option value="Haute">Haute</option>
                 </select>
 
-                <div>
-                  <div style={bigLabelStyle}>Date validation</div>
-                  <input
-                    type="date"
-                    value={form.validation_date}
-                    onChange={(e) =>
-                      setForm({ ...form, validation_date: e.target.value })
-                    }
-                    style={bigInputStyle}
-                  />
-                </div>
+                <input
+                  type="date"
+                  value={form.validation_date}
+                  onChange={(e) =>
+                    setForm({ ...form, validation_date: e.target.value })
+                  }
+                  style={bigInputStyle}
+                />
 
-                <div>
-                  <div style={bigLabelStyle}>Date fabrication</div>
-                  <input
-                    type="date"
-                    value={form.fabrication_date}
-                    onChange={(e) =>
-                      setForm({ ...form, fabrication_date: e.target.value })
-                    }
-                    style={bigInputStyle}
-                  />
-                </div>
+                <input
+                  type="date"
+                  value={form.fabrication_date}
+                  onChange={(e) =>
+                    setForm({ ...form, fabrication_date: e.target.value })
+                  }
+                  style={bigInputStyle}
+                />
 
-                <div>
-                  <div style={bigLabelStyle}>Date pose</div>
-                  <input
-                    type="date"
-                    value={form.installation_date}
-                    onChange={(e) =>
-                      setForm({ ...form, installation_date: e.target.value })
-                    }
-                    style={bigInputStyle}
-                  />
-                </div>
+                <input
+                  type="date"
+                  value={form.installation_date}
+                  onChange={(e) =>
+                    setForm({ ...form, installation_date: e.target.value })
+                  }
+                  style={bigInputStyle}
+                />
 
-                <div style={{ gridColumn: "1 / -1" }}>
-                  <div style={bigLabelStyle}>Notes / consignes atelier</div>
-                  <textarea
-                    placeholder="Ajouter ici toutes les informations utiles pour l'atelier..."
-                    value={form.notes}
-                    onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                    style={{
-                      ...bigInputStyle,
-                      minHeight: 150,
-                      resize: "vertical",
-                    }}
-                  />
-                </div>
+                <textarea
+                  placeholder="Notes / consignes atelier"
+                  value={form.notes}
+                  onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                  style={{
+                    ...bigInputStyle,
+                    minHeight: 150,
+                    resize: "vertical",
+                    gridColumn: isMobile ? "auto" : "1 / -1",
+                  }}
+                />
               </div>
 
-              <div
-                style={{
-                  display: "flex",
-                  gap: 12,
-                  marginTop: 22,
-                  flexWrap: "wrap",
-                }}
-              >
+              <div style={{ display: "flex", gap: 12, marginTop: 22, flexWrap: "wrap" }}>
                 <button
                   onClick={saveProject}
                   disabled={savingProject}
-                  style={{
-                    ...blueButtonTop,
-                    padding: "14px 22px",
-                    fontSize: 15,
-                    opacity: savingProject ? 0.7 : 1,
-                  }}
+                  style={{ ...blueButtonTop, opacity: savingProject ? 0.7 : 1 }}
                 >
                   {savingProject ? "Enregistrement..." : "Enregistrer"}
                 </button>
@@ -4430,11 +4119,7 @@ export default function Home() {
                     setEditingProjectId(null);
                     setForm(emptyForm);
                   }}
-                  style={{
-                    ...outlineButtonTop,
-                    padding: "14px 22px",
-                    fontSize: 15,
-                  }}
+                  style={outlineButtonTop}
                 >
                   Annuler
                 </button>
@@ -4455,33 +4140,13 @@ export default function Home() {
             >
               <div
                 style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  gap: 12,
-                  flexWrap: "wrap",
+                  fontSize: 30,
+                  fontWeight: 900,
+                  color: TEXT_DARK,
                   marginBottom: 20,
                 }}
               >
-                <div
-                  style={{
-                    fontSize: 30,
-                    fontWeight: 900,
-                    color: TEXT_DARK,
-                  }}
-                >
-                  Détail événement
-                </div>
-
-                <button
-                  onClick={() => {
-                    setShowCalendarEventDetails(false);
-                    setSelectedCalendarEvent(null);
-                  }}
-                  style={outlineButtonTop}
-                >
-                  Fermer
-                </button>
+                Détail événement
               </div>
 
               <div style={{ display: "grid", gap: 12 }}>
@@ -4521,24 +4186,9 @@ export default function Home() {
                 <div>
                   <strong>Notes :</strong> {selectedCalendarEvent.notes || "-"}
                 </div>
-                <div>
-                  <strong>Source :</strong>{" "}
-                  {selectedCalendarEvent.source === "manual"
-                    ? "Événement manuel"
-                    : selectedCalendarEvent.source === "project"
-                    ? "Projet"
-                    : "Jour férié"}
-                </div>
               </div>
 
-              <div
-                style={{
-                  display: "flex",
-                  gap: 12,
-                  marginTop: 22,
-                  flexWrap: "wrap",
-                }}
-              >
+              <div style={{ display: "flex", gap: 12, marginTop: 22, flexWrap: "wrap" }}>
                 {selectedCalendarEvent.project_id && (
                   <button
                     onClick={() => openLinkedProjectFromEvent(selectedCalendarEvent)}
@@ -4569,6 +4219,16 @@ export default function Home() {
                     Supprimer
                   </button>
                 )}
+
+                <button
+                  onClick={() => {
+                    setShowCalendarEventDetails(false);
+                    setSelectedCalendarEvent(null);
+                  }}
+                  style={outlineButtonTop}
+                >
+                  Fermer
+                </button>
               </div>
             </div>
           )}
@@ -4768,6 +4428,7 @@ function FilesBlock({
   imageFiles,
   renderFileButton,
   renderPreview,
+  isMobile,
 }: {
   role: UserRole;
   category: string;
@@ -4784,6 +4445,7 @@ function FilesBlock({
   imageFiles: ProjectFile[];
   renderFileButton: (file: ProjectFile) => React.ReactNode;
   renderPreview: () => React.ReactNode;
+  isMobile: boolean;
 }) {
   return (
     <div
@@ -4843,17 +4505,6 @@ function FilesBlock({
         )}
       </div>
 
-      <div
-        style={{
-          color: TEXT_LIGHT,
-          fontSize: 13,
-          fontWeight: 700,
-          marginBottom: 14,
-        }}
-      >
-        Tu peux sélectionner plusieurs fichiers en une fois.
-      </div>
-
       {message && (
         <div
           style={{
@@ -4869,7 +4520,7 @@ function FilesBlock({
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1.1fr",
+          gridTemplateColumns: isMobile ? "1fr" : "1fr 1.1fr",
           gap: 20,
           alignItems: "start",
         }}
@@ -4887,58 +4538,7 @@ function FilesBlock({
           </div>
 
           <div>
-            <div
-              style={{
-                ...sectionTitleStyle,
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <span>Images</span>
-              <span style={{ fontSize: 13, color: TEXT_LIGHT }}>
-                {imageFiles.length} image(s)
-              </span>
-            </div>
-
-            {imageFiles.length > 0 && (
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(90px, 1fr))",
-                  gap: 10,
-                  marginBottom: 12,
-                }}
-              >
-                {imageFiles.map((img) => {
-                  const thumbUrl = getPublicFileUrl(img.file_path);
-                  return (
-                    <div
-                      key={img.id}
-                      style={{
-                        border: "1px solid #e2e8f0",
-                        borderRadius: 12,
-                        padding: 4,
-                        background: "white",
-                      }}
-                    >
-                      <img
-                        src={thumbUrl}
-                        alt={img.file_name}
-                        style={{
-                          width: "100%",
-                          height: 80,
-                          objectFit: "cover",
-                          borderRadius: 8,
-                          display: "block",
-                        }}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
+            <div style={sectionTitleStyle}>Images ({imageFiles.length})</div>
             <div style={{ display: "grid", gap: 10 }}>
               {fileGroups.image.length === 0 ? (
                 <p style={{ color: TEXT_LIGHT }}>Aucun fichier</p>
@@ -5192,6 +4792,7 @@ const sidebarButton: React.CSSProperties = {
   textAlign: "left",
   fontWeight: 800,
   cursor: "pointer",
+  whiteSpace: "nowrap",
 };
 
 const sidebarActiveButton: React.CSSProperties = {
@@ -5203,26 +4804,5 @@ const sidebarActiveButton: React.CSSProperties = {
   textAlign: "left",
   fontWeight: 800,
   cursor: "pointer",
-};
-
-const calendarTinyButton: React.CSSProperties = {
-  padding: "7px 10px",
-  borderRadius: 10,
-  border: "none",
-  background: "rgba(255,255,255,0.9)",
-  color: TEXT_DARK,
-  fontWeight: 800,
-  cursor: "pointer",
-  fontSize: 12,
-};
-
-const calendarTinyDeleteButton: React.CSSProperties = {
-  padding: "7px 10px",
-  borderRadius: 10,
-  border: "none",
-  background: "#b91c1c",
-  color: "white",
-  fontWeight: 800,
-  cursor: "pointer",
-  fontSize: 12,
+  whiteSpace: "nowrap",
 };
