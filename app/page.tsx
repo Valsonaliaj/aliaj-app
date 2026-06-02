@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
+import DevisPage from "./devis/DevisPage";
 
-type TabType = "projects" | "calendar" | "tasks" | "purchases";
+type TabType = "projects" | "calendar" | "tasks" | "purchases" | "devis";
 type CalendarViewMode = "day" | "week" | "month";
 type ProjectSortOption =
   | "fabrication_desc"
@@ -429,35 +430,24 @@ function StatCard({
   title,
   value,
   big = false,
+  accent,
 }: {
   title: string;
   value: number;
   big?: boolean;
+  accent?: string;
 }) {
   return (
-    <div
-      style={{
-        background: "white",
-        borderRadius: 24,
-        padding: 24,
-        boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
-        gridColumn: big ? "span 2" : undefined,
-      }}
-    >
-      <div style={{ fontSize: 13, color: TEXT_LIGHT, fontWeight: 800 }}>
-        {title}
-      </div>
-      <div
-        style={{
-          fontSize: big ? 52 : 34,
-          fontWeight: 900,
-          marginTop: 10,
-          color: TEXT_DARK,
-          lineHeight: 1,
-        }}
-      >
-        {value}
-      </div>
+    <div style={{
+      background: "white",
+      borderRadius: 20,
+      padding: "28px 32px",
+      boxShadow: "0 2px 12px rgba(0,0,0,0.07)",
+      gridColumn: big ? "span 2" : undefined,
+      borderTop: `4px solid ${accent || "#1e3a8a"}`,
+    }}>
+      <div style={{ fontSize: 12, color: "#94a3b8", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>{title}</div>
+      <div style={{ fontSize: big ? 56 : 44, fontWeight: 900, color: "#0f172a", lineHeight: 1 }}>{value}</div>
     </div>
   );
 }
@@ -531,6 +521,11 @@ export default function Home() {
   const [taskForm, setTaskForm] = useState<TaskForm>(emptyTaskForm);
   const [savingTask, setSavingTask] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+
+  const projectFormRef = useRef<HTMLDivElement>(null);
+  const taskFormRef = useRef<HTMLDivElement>(null);
+  const projectClientInputRef = useRef<HTMLInputElement>(null);
+  const taskTitleInputRef = useRef<HTMLInputElement>(null);
 
   const [showPurchaseForm, setShowPurchaseForm] = useState(false);
   const [purchaseForm, setPurchaseForm] = useState<PurchaseForm>(emptyPurchaseForm);
@@ -753,7 +748,7 @@ export default function Home() {
   }, [selectedProject, role]);
 
   useEffect(() => {
-    if (role === "atelier" && activeTab === "tasks") {
+    if (role === "atelier" && (activeTab === "tasks" || activeTab === "devis")) {
       setActiveTab("projects");
     }
   }, [role, activeTab]);
@@ -1063,6 +1058,10 @@ useEffect(() => {
       project_number: getNextProjectNumber(projects),
     });
     setShowProjectForm(true);
+    setTimeout(() => {
+      projectFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      projectClientInputRef.current?.focus();
+    }, 50);
   };
 
   const openEditProject = (project: Project) => {
@@ -1080,6 +1079,10 @@ useEffect(() => {
       notes: project.notes || "",
     });
     setShowProjectForm(true);
+    setTimeout(() => {
+      projectFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      projectClientInputRef.current?.focus();
+    }, 50);
   };
 
   const saveProject = async () => {
@@ -1682,92 +1685,45 @@ useEffect(() => {
     const isSelected = selectedProject?.id === project.id;
 
     return (
-      <button
-        key={project.id}
-        onClick={() => setSelectedProject(project)}
-        style={{
-          width: "100%",
-          textAlign: "left",
-          background: isCompleted ? BG_COMPLETED : "white",
-          borderRadius: 24,
-          padding: isMobile ? 16 : 20,
-          boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
-          border: isSelected
-            ? `3px solid ${BRAND_BLUE}`
-            : isCompleted
-            ? `2px solid ${BORDER_COMPLETED}`
-            : "1px solid #e2e8f0",
-          cursor: "pointer",
-        }}
+      <button key={project.id} onClick={() => setSelectedProject(project)} style={{
+        width: "100%", textAlign: "left",
+        background: isCompleted ? "#f8fafc" : "white",
+        borderRadius: 20,
+        padding: isMobile ? 18 : 24,
+        boxShadow: isSelected ? "0 6px 24px rgba(15,36,71,0.18)" : "0 2px 10px rgba(0,0,0,0.06)",
+        border: isSelected ? `2px solid #1e3a8a` : `1px solid #e8edf5`,
+        cursor: "pointer",
+        transition: "box-shadow 0.15s, transform 0.15s",
+      }}
+        onMouseEnter={e => { if (!isSelected) { e.currentTarget.style.boxShadow = "0 6px 20px rgba(15,36,71,0.12)"; e.currentTarget.style.transform = "translateY(-2px)"; }}}
+        onMouseLeave={e => { if (!isSelected) { e.currentTarget.style.boxShadow = "0 2px 10px rgba(0,0,0,0.06)"; e.currentTarget.style.transform = "translateY(0)"; }}}
       >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            gap: 16,
-            flexWrap: "wrap",
-          }}
-        >
+        {/* Header row */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, marginBottom: 18 }}>
           <div>
-            <div
-              style={{
-                fontSize: isMobile ? 24 : 31,
-                fontWeight: 900,
-                color: TEXT_DARK,
-                lineHeight: 1.05,
-              }}
-            >
+            <div style={{ fontSize: isMobile ? 22 : 28, fontWeight: 900, color: "#0f172a", lineHeight: 1.05, letterSpacing: "-0.01em" }}>
               {project.project_number}
             </div>
-
-            <div
-              style={{
-                color: TEXT_MEDIUM,
-                marginTop: 8,
-                fontSize: isMobile ? 16 : 18,
-                fontWeight: 700,
-              }}
-            >
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#475569", marginTop: 6 }}>
               {project.client_name}
             </div>
           </div>
-
           <StatusBadge status={project.status} />
         </div>
 
-        <div
-          style={{
-            marginTop: 16,
-            display: "grid",
-            gridTemplateColumns: isMobile
-              ? "1fr"
-              : "repeat(5, minmax(0, 1fr))",
-            gap: 14,
-          }}
-        >
+        {/* Info row */}
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(5, 1fr)", gap: 12 }}>
           <InfoCell label="Type" value={project.project_type} />
-          <InfoCell label="Adresse" value={project.address || "-"} />
+          <InfoCell label="Adresse" value={project.address || "—"} />
           <InfoCell label="Fabrication" value={formatDate(project.fabrication_date)} />
           <InfoCell label="Pose" value={formatDate(project.installation_date)} />
-          <InfoCell label="Priorité" value={project.priority || "-"} />
+          <InfoCell label="Priorité" value={project.priority || "—"} />
         </div>
 
         {project.notes && (
-          <div
-            style={{
-              marginTop: 14,
-              padding: 12,
-              borderRadius: 14,
-              background: "rgba(255,255,255,0.55)",
-              border: "1px solid #e2e8f0",
-              color: TEXT_MEDIUM,
-            }}
-          >
-            <div style={{ fontWeight: 800, color: TEXT_DARK, marginBottom: 4 }}>
-              Notes atelier
-            </div>
-            <div>{project.notes}</div>
+          <div style={{ marginTop: 16, padding: "12px 16px", borderRadius: 12, background: "#f8fafc", border: "1px solid #e2e8f0" }}>
+            <div style={{ fontSize: 11, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Notes atelier</div>
+            <div style={{ fontSize: 13, color: "#475569", lineHeight: 1.5 }}>{project.notes}</div>
           </div>
         )}
       </button>
@@ -2441,6 +2397,7 @@ useEffect(() => {
 
       {showTaskForm && (
         <div
+          ref={taskFormRef}
           style={{
             background: "white",
             borderRadius: 28,
@@ -2461,6 +2418,7 @@ useEffect(() => {
           </div>
 
           <input
+            ref={taskTitleInputRef}
             placeholder="Titre de la tâche"
             value={taskForm.title}
             onChange={(e) =>
@@ -3442,53 +3400,26 @@ useEffect(() => {
   );
 
   const renderProjects = () => (
-    <div style={{ marginTop: 24, display: "grid", gap: 24 }}>
+    <div style={{ display: "grid", gap: 20 }}>
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: isMobile ? "1fr" : "repeat(4, minmax(0, 1fr))",
-          gap: 16,
-        }}
-      >
-        <StatCard
-          title="PROJETS EN COURS"
-          value={projects.filter((p) => p.status !== "Terminé").length}
-          big={!isMobile}
-        />
-        <StatCard title="EN FABRICATION" value={fabricationCount} />
-        <StatCard title="PRÊTS POUR POSE" value={readyInstallCount} />
-      </div>
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: isMobile ? "1fr" : "1.15fr 1fr",
+          gridTemplateColumns: isMobile ? "1fr" : "1.2fr 1fr",
           gap: 20,
           alignItems: "start",
+          minHeight: "100%",
         }}
       >
-        <div
-          style={{
-            background: "white",
-            borderRadius: 24,
-            padding: 20,
-            boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
-          }}
-        >
-          <div
-            style={{
-              fontSize: 22,
-              fontWeight: 900,
-              color: TEXT_DARK,
-              marginBottom: 16,
-            }}
-          >
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 14 }}>
             Liste des projets actifs ({activeProjects.length})
           </div>
-
           <div style={{ display: "grid", gap: 14 }}>
             {activeProjects.length === 0 ? (
-              <div style={{ color: TEXT_LIGHT }}>Aucun projet trouvé.</div>
+              <div style={{ background: "white", borderRadius: 20, padding: "48px 24px", textAlign: "center", color: "#94a3b8", boxShadow: "0 2px 10px rgba(0,0,0,0.06)" }}>
+                <div style={{ fontSize: 18, fontWeight: 700, color: "#64748b", marginBottom: 6 }}>Aucun projet trouvé</div>
+                <div style={{ fontSize: 14 }}>Modifiez les filtres ou créez un nouveau projet.</div>
+              </div>
             ) : (
               activeProjects.map((project) => renderProjectCard(project))
             )}
@@ -3497,11 +3428,14 @@ useEffect(() => {
 
         <div
           style={{
-            display: "grid",
+            display: "flex",
+            flexDirection: "column",
             gap: 20,
             position: isMobile ? "static" : "sticky",
-            top: 24,
+            top: 0,
             alignSelf: "start",
+            maxHeight: "calc(100vh - 130px)",
+            overflowY: "auto",
           }}
         >
           {selectedProject ? (
@@ -3539,27 +3473,19 @@ useEffect(() => {
               {renderHistoryToggleBlock()}
             </>
           ) : (
-            <div
-              style={{
-                background: "white",
-                borderRadius: 24,
-                padding: 28,
-                boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
-                color: TEXT_LIGHT,
-              }}
-            >
-              <div
-                style={{
-                  fontSize: 24,
-                  fontWeight: 900,
-                  color: TEXT_DARK,
-                  marginBottom: 10,
-                }}
-              >
+            <div style={{
+              background: "white", borderRadius: 20, padding: "40px 28px",
+              boxShadow: "0 2px 10px rgba(0,0,0,0.06)",
+              textAlign: "center",
+            }}>
+              <div style={{ width: 56, height: 56, borderRadius: 16, background: "#f1f5f9", margin: "0 auto 16px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div style={{ width: 24, height: 24, borderRadius: 4, border: "3px solid #cbd5e1" }} />
+              </div>
+              <div style={{ fontSize: 17, fontWeight: 800, color: "#0f172a", marginBottom: 8 }}>
                 Aucun projet sélectionné
               </div>
-              <div style={{ lineHeight: 1.7 }}>
-                Clique sur un projet dans la liste pour afficher sa fiche complète.
+              <div style={{ fontSize: 14, color: "#94a3b8", lineHeight: 1.6 }}>
+                Cliquez sur un projet dans la liste pour afficher sa fiche complète.
               </div>
             </div>
           )}
@@ -3696,6 +3622,8 @@ useEffect(() => {
               border: `1px solid ${BORDER}`,
               outline: "none",
               fontSize: 16,
+              color: "#0f172a",
+              background: "white",
             }}
           />
 
@@ -3713,7 +3641,7 @@ useEffect(() => {
               padding: 14,
               borderRadius: 12,
               border: "none",
-              background: BRAND_BLUE,
+              background: "linear-gradient(135deg, #0f2447, #1e4d8c)",
               color: "white",
               fontWeight: 900,
               cursor: "pointer",
@@ -3730,7 +3658,8 @@ useEffect(() => {
   return (
     <main
       style={{
-        minHeight: "100vh",
+        height: "100vh",
+        overflow: "hidden",
         background: "#f1f5f9",
         fontFamily: "Arial, sans-serif",
       }}
@@ -3739,19 +3668,22 @@ useEffect(() => {
         style={{
           display: "flex",
           flexDirection: isMobile ? "column" : "row",
-          minHeight: "100vh",
+          height: "100vh",
         }}
       >
         <aside
           style={{
             width: isMobile ? "100%" : 270,
-            background: BRAND_BLUE,
+            flexShrink: 0,
+            background: "linear-gradient(175deg, #0f2447 0%, #1a3a6e 55%, #1e4d8c 100%)",
             color: "white",
             padding: isMobile ? 16 : 24,
             display: "flex",
             flexDirection: isMobile ? "row" : "column",
             justifyContent: "space-between",
             gap: 16,
+            height: "100vh",
+            overflowY: "auto",
             overflowX: isMobile ? "auto" : "visible",
           }}
         >
@@ -3828,6 +3760,15 @@ useEffect(() => {
               >
                 Achat projet
               </button>
+
+              {role === "bureau" && (
+                <button
+                  onClick={() => setActiveTab("devis")}
+                  style={activeTab === "devis" ? sidebarActiveButton : sidebarButton}
+                >
+                  Devis
+                </button>
+              )}
             </div>
           </div>
 
@@ -3836,181 +3777,115 @@ useEffect(() => {
           </button>
         </aside>
 
-        <section style={{ flex: 1, padding: isMobile ? 12 : 24 }}>
-          <div
-            style={{
-              background: "white",
-              borderRadius: 24,
-              padding: 20,
-              boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
-              display: "grid",
-              gridTemplateColumns: isMobile
-                ? "1fr"
-                : activeTab === "projects"
-                ? "auto 1fr 240px 220px auto"
-                : "auto 1fr auto",
-              gap: 16,
-              alignItems: "center",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-              <img
-                src="/Logo.png"
-                alt="Logo"
-                style={{
-                  width: isMobile ? 54 : 72,
-                  height: isMobile ? 54 : 72,
-                  objectFit: "contain",
-                  background: "white",
-                  borderRadius: 999,
-                  padding: 4,
-                  border: "1px solid #e2e8f0",
-                }}
-              />
-              <div>
-                <div
-                  style={{
-                    fontSize: isMobile ? 21 : 28,
-                    fontWeight: 900,
-                    color: TEXT_DARK,
-                  }}
-                >
-                  Aliaj Interior — Dashboard
-                </div>
-                <div style={{ color: TEXT_LIGHT }}>
-                  Gestion de projets menuiserie
-                </div>
-              </div>
-            </div>
-
+        <section style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, overflow: "hidden" }}>
+          {/* Top header bar */}
+          <div style={{
+            background: activeTab === "projects"
+              ? "linear-gradient(135deg, #0f2447 0%, #1a3a6e 60%, #1e4d8c 100%)"
+              : "white",
+            borderBottom: activeTab === "projects" ? "none" : "1px solid #e2e8f0",
+            padding: activeTab === "projects" ? "16px 28px 0 28px" : "14px 28px",
+            display: "flex", flexDirection: "column", gap: 0,
+            flexShrink: 0,
+            minWidth: 0,
+            boxShadow: activeTab === "projects" ? "0 4px 20px rgba(15,36,71,0.3)" : "0 1px 4px rgba(0,0,0,0.04)",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 16, width: "100%" }}>
             {activeTab === "projects" ? (
-              <>
-                <input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Rechercher..."
-                  style={{
-                    ...inputStyle,
-                    width: "100%",
-                    padding: "16px 18px",
-                    fontSize: 15,
-                    fontWeight: 700,
-                  }}
-                />
-
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  style={{
-                    ...inputStyle,
-                    width: "100%",
-                    padding: "16px 18px",
-                    fontWeight: 800,
-                    background: statusFilter ? "white" : FILTER_CLEAR_BG,
-                    color: statusFilter ? TEXT_DARK : FILTER_CLEAR_COLOR,
-                    borderColor: statusFilter ? BORDER : "#fecaca",
-                  }}
-                >
-                  <option value="">Aucun filtre statut</option>
-                  {STATUS_OPTIONS.map((status) => (
-                    <option key={status} value={status}>
-                      {status}
-                    </option>
-                  ))}
-                </select>
-
-                <select
-                  value={projectSort}
-                  onChange={(e) =>
-                    setProjectSort(e.target.value as ProjectSortOption)
-                  }
-                  style={{
-                    ...inputStyle,
-                    width: "100%",
-                    padding: "16px 18px",
-                    fontWeight: 800,
-                  }}
-                >
-                  <option value="fabrication_desc">Tri : fabrication ↓</option>
-                  <option value="installation_asc">Tri : pose ↑</option>
-                  <option value="client_asc">Tri : client A → Z</option>
-                  <option value="project_number_asc">Tri : numéro projet</option>
-                  <option value="status_asc">Tri : statut</option>
-                </select>
-
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 10,
-                    flexWrap: "wrap",
-                    justifyContent: isMobile ? "flex-start" : "flex-end",
-                  }}
-                >
-                  {role === "bureau" && (
-                    <button onClick={openCreateProject} style={outlineButtonTop}>
-                      Nouveau projet
-                    </button>
-                  )}
-
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", gap: 12 }}>
+                {/* Left: filters */}
+                <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                  <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Rechercher..."
+                    style={{ width: 180, padding: "11px 14px", fontSize: 13, borderRadius: 10,
+                      border: "1.5px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.12)",
+                      color: "white", outline: "none", boxSizing: "border-box" as const }} />
+                  <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
+                    style={{ padding: "11px 12px", fontSize: 13, fontWeight: 700, borderRadius: 10,
+                      border: "1.5px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.12)",
+                      color: statusFilter ? "white" : "rgba(255,255,255,0.6)", outline: "none", cursor: "pointer" }}>
+                    <option value="" style={{ color: "#0f172a" }}>Statut</option>
+                    {STATUS_OPTIONS.map((s) => <option key={s} value={s} style={{ color: "#0f172a" }}>{s}</option>)}
+                  </select>
+                  <select value={projectSort} onChange={(e) => setProjectSort(e.target.value as ProjectSortOption)}
+                    style={{ padding: "11px 12px", fontSize: 13, fontWeight: 700, borderRadius: 10,
+                      border: "1.5px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.12)",
+                      color: "white", outline: "none", cursor: "pointer" }}>
+                    <option value="fabrication_desc" style={{ color: "#0f172a" }}>Fabrication ↓</option>
+                    <option value="installation_asc" style={{ color: "#0f172a" }}>Pose ↑</option>
+                    <option value="client_asc" style={{ color: "#0f172a" }}>Client A→Z</option>
+                    <option value="project_number_asc" style={{ color: "#0f172a" }}>N° projet</option>
+                    <option value="status_asc" style={{ color: "#0f172a" }}>Statut</option>
+                  </select>
+                </div>
+                {/* Right: actions */}
+                <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
                   {selectedProject && role === "bureau" && (
                     <>
-                      <button
-                        onClick={() => openEditProject(selectedProject)}
-                        style={lightButtonTop}
-                      >
-                        Modifier
-                      </button>
-
-                      <button
-                        onClick={() => deleteProject(selectedProject)}
-                        style={redButtonTop}
-                      >
-                        Supprimer
-                      </button>
+                      <button onClick={() => openEditProject(selectedProject)} style={{
+                        background: "rgba(255,255,255,0.15)", color: "white",
+                        border: "1.5px solid rgba(255,255,255,0.3)", borderRadius: 10,
+                        padding: "12px 22px", fontSize: 14, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap",
+                      }}>Modifier</button>
+                      <button onClick={() => deleteProject(selectedProject)} style={{
+                        background: "rgba(220,38,38,0.25)", color: "#fca5a5",
+                        border: "1.5px solid rgba(220,38,38,0.4)", borderRadius: 10,
+                        padding: "12px 22px", fontSize: 14, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap",
+                      }}>Supprimer</button>
                     </>
                   )}
+                  {role === "bureau" && (
+                    <button onClick={openCreateProject} style={{
+                      background: "white", color: "#0f2447",
+                      border: "none", borderRadius: 10, padding: "12px 24px",
+                      fontWeight: 800, fontSize: 14, cursor: "pointer", whiteSpace: "nowrap",
+                      boxShadow: "0 4px 14px rgba(0,0,0,0.2)",
+                    }}>+ Nouveau projet</button>
+                  )}
                 </div>
-              </>
-            ) : activeTab === "calendar" ? (
-              <>
-                <div style={{ color: TEXT_LIGHT, fontWeight: 700 }}>
-                  Vue calendrier partagée entre Bureau et Atelier
-                </div>
-                <div style={{ color: TEXT_LIGHT, fontWeight: 800 }}>
-                  Interface {role === "bureau" ? "Bureau" : "Atelier"}
-                </div>
-              </>
+              </div>
             ) : activeTab === "tasks" ? (
               <>
-                <div style={{ color: TEXT_LIGHT, fontWeight: 700 }}>
-                  Gestion simple des tâches à effectuer
-                </div>
-
-                <button
-                  onClick={() => setShowTaskForm((prev) => !prev)}
-                  style={blueButtonTop}
-                >
+                <div style={{ flex: 1, fontSize: 15, color: "#64748b", fontWeight: 600 }}>Gestion des tâches</div>
+                <button onClick={() => { setShowTaskForm((prev) => { if (!prev) { setTimeout(() => { taskFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }); taskTitleInputRef.current?.focus(); }, 50); } return !prev; }); }}
+                  style={{ background: "linear-gradient(135deg, #0f2447, #1e4d8c)", color: "white", border: "none", borderRadius: 10, padding: "11px 20px", fontWeight: 800, fontSize: 13, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>
                   {showTaskForm ? "Fermer" : "+ Nouvelle tâche"}
                 </button>
               </>
-            ) : (
+            ) : activeTab === "purchases" ? (
               <>
-                <div style={{ color: TEXT_LIGHT, fontWeight: 700 }}>
-                  Gestion des achats liés aux projets
-                </div>
-
-                <button
-                  onClick={() => setShowPurchaseForm((prev) => !prev)}
-                  style={blueButtonTop}
-                >
+                <div style={{ flex: 1, fontSize: 15, color: "#64748b", fontWeight: 600 }}>Achats liés aux projets</div>
+                <button onClick={() => setShowPurchaseForm((prev) => !prev)}
+                  style={{ background: "linear-gradient(135deg, #0f2447, #1e4d8c)", color: "white", border: "none", borderRadius: 10, padding: "11px 20px", fontWeight: 800, fontSize: 13, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>
                   {showPurchaseForm ? "Fermer" : "+ Achat projet"}
                 </button>
               </>
+            ) : (
+              <div style={{ flex: 1 }} />
             )}
-          </div>
+            </div>{/* end inner flex row */}
+
+            {/* Stat cards inside blue header — projects tab only */}
+            {activeTab === "projects" && (
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: 16, padding: "20px 0 24px 0" }}>
+                {[
+                  { title: "PROJETS EN COURS", value: projects.filter((p) => p.status !== "Terminé").length },
+                  { title: "EN FABRICATION", value: fabricationCount },
+                  { title: "PRÊTS POUR POSE", value: readyInstallCount },
+                ].map(stat => (
+                  <div key={stat.title} style={{ background: "rgba(255,255,255,0.1)", borderRadius: 16, padding: "20px 24px", backdropFilter: "blur(4px)", border: "1px solid rgba(255,255,255,0.15)" }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 10 }}>{stat.title}</div>
+                    <div style={{ fontSize: 48, fontWeight: 900, color: "white", lineHeight: 1 }}>{stat.value}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>{/* end blue header */}
+
+          <div style={{ flex: 1, padding: isMobile ? 16 : 28, overflowY: "auto", minHeight: 0 }}>
 
           {showProjectForm && role === "bureau" && (
             <div
+              ref={projectFormRef}
               style={{
                 marginTop: 24,
                 background: "white",
@@ -4050,6 +3925,7 @@ useEffect(() => {
                   }}
                 />
                 <input
+                  ref={projectClientInputRef}
                   placeholder="Nom client"
                   value={form.client_name}
                   onChange={(e) =>
@@ -4275,9 +4151,12 @@ useEffect(() => {
             renderCalendar()
           ) : activeTab === "tasks" ? (
             role === "bureau" ? renderTasks() : null
+          ) : activeTab === "devis" ? (
+            role === "bureau" ? <DevisPage supabase={supabase} projects={projects} /> : null
           ) : (
             renderPurchases()
           )}
+        </div>
         </section>
       </div>
     </main>
