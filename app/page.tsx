@@ -3434,8 +3434,8 @@ useEffect(() => {
             position: isMobile ? "static" : "sticky",
             top: 0,
             alignSelf: "start",
-            maxHeight: "calc(100vh - 130px)",
-            overflowY: "auto",
+            maxHeight: isMobile ? "none" : "calc(100vh - 130px)",
+            overflowY: isMobile ? "visible" : "auto",
           }}
         >
           {selectedProject ? (
@@ -3658,8 +3658,8 @@ useEffect(() => {
   return (
     <main
       style={{
-        height: "100vh",
-        overflow: "hidden",
+        height: isMobile ? "auto" : "100vh",
+        overflow: isMobile ? "visible" : "hidden",
         background: "#f1f5f9",
         fontFamily: "Arial, sans-serif",
       }}
@@ -3668,7 +3668,7 @@ useEffect(() => {
         style={{
           display: "flex",
           flexDirection: isMobile ? "column" : "row",
-          height: "100vh",
+          height: isMobile ? "auto" : "100vh",
         }}
       >
         <aside
@@ -3777,7 +3777,7 @@ useEffect(() => {
           </button>
         </aside>
 
-        <section style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, overflow: "hidden" }}>
+        <section style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, overflow: isMobile ? "visible" : "hidden" }}>
           {/* Top header bar */}
           <div style={{
             background: activeTab === "projects"
@@ -3881,7 +3881,7 @@ useEffect(() => {
             )}
           </div>{/* end blue header */}
 
-          <div style={{ flex: 1, padding: isMobile ? 16 : 28, overflowY: "auto", minHeight: 0 }}>
+          <div style={{ flex: 1, padding: isMobile ? 12 : 28, overflowY: isMobile ? "visible" : "auto", minHeight: isMobile ? "auto" : 0 }}>
 
           {showProjectForm && role === "bureau" && (
             <div
