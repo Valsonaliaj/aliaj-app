@@ -227,6 +227,38 @@ const PRODUCT_CATALOG: CatalogProduct[] = [
   { key: "profil_yaren_noir", label: "Profil YAREN Noir Mat (5000mm)", image: "/catalog/profil_yaren_noir.png", url: "https://www.bermabru.be/fr_BE/p/profil-poignee-yaren-en-v-noir-pour-strip-decor-5000mm/3046/", category: "Profils", color: "#1e293b" },
   { key: "plaque_fixation_profil", label: "Plaque Fixation Profil Poignée", image: "/catalog/plaque_fixation_profil.png", url: "https://www.bermabru.be/fr_BE/p/plaque-de-fixation-pour-profil-poignee/16978/", category: "Fixations", color: "#f1f5f9" },
   { key: "profil_list_l", label: "Profil LIST-L Noir Mat (5000mm)", image: "/catalog/profil_list_l.png", url: "https://www.bermabru.be/fr_BE/p/pyn098-poignee-en-l-alu-noir-mat-r9005-5000mm/41670/", category: "Profils", color: "#1e293b" },
+  // --- Profils supplémentaires ---
+  { key: "profil_l_bronze", label: "Profil L Bronze (5000mm)", image: "https://www.bermabru.be/static/uploads/pictures/small/99b34881-6936-4d98-a1a6-3ac2ab4c0743.png", url: "https://www.bermabru.be/fr_BE/p/profil-poignee-en-l-bronze-5000mm/25813/", category: "Profils", color: "#92400e" },
+  { key: "profil_l_blanc", label: "Profil L Blanc Mat (5000mm)", image: "https://static.bermabru.be/uploads/pictures/large/e7a46c37-c663-493c-82f5-aed9646061a5.png", url: "https://www.bermabru.be/fr_BE/p/profil-poignee-en-l-5000mm-blanc-r9016-mat/41666/", category: "Profils", color: "#f8fafc" },
+  { key: "profil_l_inox", label: "Profil L Inox Look (5000mm)", image: "https://www.bermabru.be/static/uploads/pictures/small/c90cbb55-6b1b-4d6e-8f7b-f411baecc6e2.png", url: "https://www.bermabru.be/fr_BE/p/profil-poignee-en-l-alu-inox-look-5000mm/25078/", category: "Profils", color: "#e2e8f0" },
+  { key: "profil_l_anodise", label: "Profil L Alu Anodisé (5000mm)", image: "https://www.bermabru.be/static/uploads/pictures/large/d007e6d0-d211-4391-ba1a-f26ac34a239e.png", url: "https://www.bermabru.be/fr_BE/p/profil-poignee-en-l-alu-anodise-5000mm/4635/", category: "Profils", color: "#cbd5e1" },
+  // --- Socle & pieds ---
+  { key: "plaque_fix_nehl_noir", label: "Plaque Fixation Nehl 5000 Noir", image: "https://www.bermabru.be/static/uploads/pictures/large/e4245b7a-4c7d-4f55-a899-f894e3afaaf4.png", url: "https://www.bermabru.be/fr_BE/p/plaque-de-fix-5000-noir-a-enfoncer-250/12794/", category: "Socle", color: "#1e293b" },
+  { key: "pied_socle_80", label: "Pied Socle Noir H80mm", image: "https://www.bermabru.be/static/uploads/pictures/small/7a7d3979-6f13-4280-9120-bd3a2dede4cc.png", url: "https://www.bermabru.be/fr_BE/p/pied-pour-socle-5000-noir-h-80mm-200/12782/", category: "Socle", color: "#334155" },
+  { key: "pied_socle_150", label: "Pied Socle Noir H150mm", image: "https://www.bermabru.be/static/uploads/pictures/small/7329-0150.png", url: "https://www.bermabru.be/fr_BE/p/pied-pour-socle-5000-noir-h-150mm-150/4917/", category: "Socle", color: "#334155" },
+  // --- Ventilation & conduit ---
+  { key: "conduit_alu", label: "Conduit Alu Laminé 3 Couches Ø125", image: "https://www.bermabru.be/static/uploads/pictures/large/740db5e4-0a76-45d4-a476-b5c420d1d5b0.png", url: "https://www.bermabru.be/fr_BE/p/conduit-alu-lamine-3-couches-m0-d-125-l-10m/30357/", category: "Ventilation", color: "#e2e8f0" },
+  { key: "aeration_blanc", label: "Aération Socle 458x75 Blanc", image: "https://www.bermabru.be/static/uploads/pictures/large/523d8154-9df6-4a70-a970-3d81a9554d45.png", url: "https://www.bermabru.be/fr_BE/p/aeration-soccle-458-x-75-blanc/30399/", category: "Ventilation", color: "#f8fafc" },
+  { key: "aeration_gris", label: "Aération Socle 458x75 Gris", image: "https://www.bermabru.be/static/uploads/pictures/large/7dd1baa7-5581-4808-aaa2-287b8439ce9e.png", url: "https://www.bermabru.be/fr_BE/p/aeration-soccle-458-x-75-gris/41584/", category: "Ventilation", color: "#94a3b8" },
+  { key: "aeration_noir", label: "Aération Socle 458x75 Noir", image: "https://www.bermabru.be/static/uploads/pictures/large/a2cf3bad-ca8d-468a-b55a-e973516d3988.png", url: "https://www.bermabru.be/fr_BE/p/aeration-soccle-458-x-75-noir/41580/", category: "Ventilation", color: "#1e293b" },
+  // --- Embouts profils ---
+  { key: "embout_c_noir", label: "Embout Modèle C Noir", image: "https://www.bermabru.be/static/uploads/pictures/small/2b487e56-a777-423d-8812-16974d636553.png", url: "https://www.bermabru.be/fr_BE/p/embout-modele-c-noir/39194/", category: "Profils", color: "#1e293b" },
+  { key: "embout_l_droite", label: "Embout Droite Modèle L Noir", image: "https://www.bermabru.be/static/uploads/pictures/small/a3d25885-7e5f-4a54-8e9c-3953a12720ad.png", url: "https://www.bermabru.be/fr_BE/p/embout-droite-modele-l-noir/23624/", category: "Profils", color: "#1e293b" },
+  { key: "embout_l_gauche", label: "Embout Gauche Modèle L Noir", image: "https://www.bermabru.be/static/uploads/pictures/large/a3d25885-7e5f-4a54-8e9c-3953a12720ad.png", url: "https://www.bermabru.be/fr_BE/p/embout-gauche-modele-l-noir/25081/", category: "Profils", color: "#1e293b" },
+  { key: "crochet_alu_noir", label: "Crochet Alu Double Rainure Noir", image: "https://www.bermabru.be/static/uploads/pictures/small/4542-2111.png", url: "https://www.bermabru.be/fr_BE/p/crochet-alu-rainure-double-noir-mat/30627/", category: "Penderie", color: "#1e293b" },
+  // --- Poignées ONA BA32 ---
+  { key: "poignee_ona_ba32_laiton", label: "Poignée ONA BA32 Laiton (32mm)", image: "https://www.bermabru.be/static/uploads/pictures/small/Viefe_0372032L29_ONA_P1_02.png", url: "https://www.bermabru.be/fr_BE/p/poignee-ona-ba32-l50-aluminium-brosse-fonce-laiton/18936/", category: "Poignées", color: "#fde68a" },
+  { key: "poignee_ona_ba32_noir", label: "Poignée ONA BA32 Noir (32mm)", image: "https://www.bermabru.be/static/uploads/pictures/small/Viefe_0372032L30_ONA_P1_02.png", url: "https://www.bermabru.be/fr_BE/p/poignee-ona-ba32-l50-aluminium-brosse-noir/25036/", category: "Poignées", color: "#1e293b" },
+  { key: "poignee_ona_ba32_gris", label: "Poignée ONA BA32 Gris (32mm)", image: "https://www.bermabru.be/static/uploads/pictures/small/Viefe_0372032L31_ONA_P1.png", url: "https://www.bermabru.be/fr_BE/p/poignee-ona-ba32-l50-aluminium-brosse-gris/18833/", category: "Poignées", color: "#94a3b8" },
+  { key: "poignee_ona_ba32_blanc", label: "Poignée ONA BA32 Blanc (32mm)", image: "https://www.bermabru.be/static/uploads/pictures/small/Viefe_0372032LM1_ONA_P1_02.png", url: "https://www.bermabru.be/fr_BE/p/poignee-ona-ba32-l50-aluminium-mat-blanc/18834/", category: "Poignées", color: "#f8fafc" },
+  { key: "poignee_ona_ba32_inox", label: "Poignée ONA BA32 Inox (32mm)", image: "https://www.bermabru.be/static/uploads/pictures/small/Viefe_0372032L27_ONA_P1_02.png", url: "https://www.bermabru.be/fr_BE/p/poignee-ona-ba32-l50-aluminium-look-inox/23572/", category: "Poignées", color: "#e2e8f0" },
+  // --- Penderie & élévateurs ---
+  { key: "tube_penderie_oval", label: "Tube Penderie Ovale 30x14 (5000mm)", image: "https://www.bermabru.be/static/uploads/pictures/small/4101-3600.png", url: "https://www.bermabru.be/fr_BE/p/tubes-de-penderies-ovale-30x14-5000mm-alu-mat/18306/", category: "Penderie", color: "#cbd5e1" },
+  { key: "elevateur_super_gris", label: "Élévateur Super 12-18kg Gris", image: "https://www.bermabru.be/static/uploads/pictures/small/75955513-dcb5-49fe-b684-874b2e4501fd.png", url: "https://www.bermabru.be/fr_BE/p/elevateur-super-12-18-kg-830-1170mm-gris/29411/", category: "Penderie", color: "#94a3b8" },
+  { key: "elevateur_lift_noir", label: "Élévateur Lift 12kg Noir", image: "https://www.bermabru.be/static/uploads/pictures/large/6fdc2cfc-ffd5-4fb8-a5bb-91bbd7e4b19f.png", url: "https://www.bermabru.be/fr_BE/p/elevateur-lift-noir-890-1210mm-12kg/28169/", category: "Penderie", color: "#1e293b" },
+  // --- Divers ---
+  { key: "tape_alu", label: "Tape Alu 50mm x45m", image: "https://www.bermabru.be/static/uploads/pictures/large/38761760-8fe6-4edc-a36f-5a3e606e2b2d.png", url: "https://www.bermabru.be/fr_BE/p/tape-alu-50mm-x45m/25969/", category: "Divers", color: "#e2e8f0" },
+  { key: "poubelle_hailo", label: "Poubelle Hailo Easy-Cargo 30/19L", image: "https://www.bermabru.be/static/uploads/pictures/small/e8ab79b1-b36b-45fb-b3b6-4b3ea6d30548.png", url: "https://www.bermabru.be/fr_BE/p/poubelle-hailo-easy-cargo-30-19l-gris/2967/", category: "Divers", color: "#f1f5f9" },
 ];
 
 const BELGIUM_HOLIDAYS_2026 = [
@@ -1347,18 +1379,17 @@ useEffect(() => {
   };
 
   const saveAtelierOrder = async () => {
-    if (!atelierSelectedProduct || !atelierProjectId) {
-      alert("Merci de choisir un projet et un produit.");
+    if (!atelierSelectedProduct) {
+      alert("Merci de choisir un produit.");
       return;
     }
-    const project = projects.find((p) => String(p.id) === atelierProjectId);
-    if (!project) return;
+    const project = atelierProjectId ? projects.find((p) => String(p.id) === atelierProjectId) : null;
 
     setSavingAtelierOrder(true);
     const payload = {
-      project_id: project.id,
-      project_name: project.client_name,
-      project_number: project.project_number,
+      project_id: project?.id ?? null,
+      project_name: project?.client_name ?? "Général",
+      project_number: project?.project_number ?? "-",
       item_type: atelierSelectedProduct.category,
       description: atelierNote.trim() || atelierSelectedProduct.label,
       quantity: atelierQuantity,
@@ -2783,7 +2814,7 @@ useEffect(() => {
       </div>
 
       {/* Product grid */}
-      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(3, 1fr)" : "repeat(4, 1fr)", gap: 14 }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(3, 1fr)", gap: 14 }}>
         {PRODUCT_CATALOG.map((product) => {
           const isSelected = atelierSelectedProduct?.key === product.key;
           return (
@@ -2794,19 +2825,19 @@ useEffect(() => {
                 background: isSelected ? "#0f2447" : "white",
                 border: isSelected ? "2.5px solid #1e4d8c" : "1.5px solid #e2e8f0",
                 borderRadius: 18,
-                padding: isMobile ? "12px 6px" : "16px 10px",
+                padding: isMobile ? "12px 8px" : "16px 12px",
                 cursor: "pointer",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                gap: 8,
+                gap: 10,
                 boxShadow: isSelected ? "0 4px 20px rgba(15,36,71,0.25)" : "0 1px 4px rgba(0,0,0,0.05)",
                 transition: "all 0.15s ease",
               }}
             >
               <div style={{
-                width: isMobile ? 52 : 64,
-                height: isMobile ? 52 : 64,
+                width: isMobile ? 80 : 100,
+                height: isMobile ? 80 : 100,
                 borderRadius: 14,
                 background: product.color,
                 display: "flex",
@@ -2833,7 +2864,7 @@ useEffect(() => {
                 />
               </div>
               <div style={{
-                fontSize: isMobile ? 10 : 12,
+                fontSize: isMobile ? 11 : 13,
                 fontWeight: 700,
                 color: isSelected ? "white" : TEXT_DARK,
                 textAlign: "center",
@@ -2857,9 +2888,9 @@ useEffect(() => {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 16 }}>
             <div>
-              <div style={bigLabelStyle}>Projet</div>
+              <div style={bigLabelStyle}>Projet (optionnel)</div>
               <select value={atelierProjectId} onChange={(e) => setAtelierProjectId(e.target.value)} style={bigInputStyle}>
-                <option value="">Choisir un projet</option>
+                <option value="">Aucun projet (commande générale)</option>
                 {projects.filter((p) => p.status !== "Terminé").map((p) => (
                   <option key={p.id} value={String(p.id)}>{p.project_number} - {p.client_name}</option>
                 ))}
@@ -2929,7 +2960,7 @@ useEffect(() => {
         {categories.map((cat) => (
           <div key={cat}>
             <div style={{ fontSize: 13, fontWeight: 900, color: TEXT_LIGHT, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 14, paddingLeft: 2 }}>{cat}</div>
-            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: 14 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(3, 1fr)", gap: 14 }}>
               {PRODUCT_CATALOG.filter((p) => p.category === cat).map((product) => (
                 <a
                   key={product.key}
@@ -2940,11 +2971,11 @@ useEffect(() => {
                     background: "white",
                     border: "1.5px solid #e2e8f0",
                     borderRadius: 18,
-                    padding: isMobile ? "12px 8px" : "16px 12px",
+                    padding: isMobile ? "14px 10px" : "18px 14px",
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    gap: 10,
+                    gap: 12,
                     textDecoration: "none",
                     boxShadow: "0 1px 6px rgba(0,0,0,0.05)",
                     transition: "all 0.15s ease",
@@ -2952,8 +2983,8 @@ useEffect(() => {
                   }}
                 >
                   <div style={{
-                    width: isMobile ? 64 : 80,
-                    height: isMobile ? 64 : 80,
+                    width: isMobile ? 90 : 110,
+                    height: isMobile ? 90 : 110,
                     borderRadius: 14,
                     background: product.color,
                     overflow: "hidden",
@@ -2968,7 +2999,7 @@ useEffect(() => {
                       style={{ width: "100%", height: "100%", objectFit: "cover" }}
                     />
                   </div>
-                  <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 700, color: TEXT_DARK, textAlign: "center", lineHeight: 1.3 }}>
+                  <div style={{ fontSize: isMobile ? 12 : 13, fontWeight: 700, color: TEXT_DARK, textAlign: "center", lineHeight: 1.3 }}>
                     {product.label}
                   </div>
                   <div style={{ fontSize: 11, fontWeight: 800, color: "#1e4d8c", background: "#eff6ff", padding: "3px 10px", borderRadius: 999 }}>
