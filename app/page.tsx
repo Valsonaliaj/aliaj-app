@@ -195,18 +195,38 @@ type CatalogProduct = {
 };
 
 const PRODUCT_CATALOG: CatalogProduct[] = [
-  { key: "panneau_blanc", label: "Panneau Blanc Mat", image: "/catalog/panneau_blanc.png", url: "", category: "Panneau", color: "#dbeafe" },
-  { key: "panneau_noir", label: "Panneau Noir Mat", image: "/catalog/panneau_noir.png", url: "", category: "Panneau", color: "#1e293b" },
-  { key: "panneau_bois", label: "Panneau Bois/Noyer", image: "/catalog/panneau_bois.png", url: "", category: "Panneau", color: "#d97706" },
-  { key: "charnieres", label: "Charnières Blum", image: "/catalog/charnieres.png", url: "", category: "Quincaillerie", color: "#cbd5e1" },
-  { key: "chants", label: "Chants ABS", image: "/catalog/chants.png", url: "", category: "Chants", color: "#bfdbfe" },
-  { key: "vis", label: "Vis / Chevilles", image: "/catalog/vis.png", url: "", category: "Visserie", color: "#e2e8f0" },
-  { key: "profil_alu", label: "Profil Aluminium", image: "/catalog/profil_alu.png", url: "", category: "Profil", color: "#94a3b8" },
-  { key: "tiroirs", label: "Glissières Tiroirs", image: "/catalog/tiroirs.png", url: "", category: "Quincaillerie", color: "#c7d2fe" },
-  { key: "poignees", label: "Poignées", image: "/catalog/poignees.png", url: "", category: "Quincaillerie", color: "#fde68a" },
-  { key: "led", label: "Éclairage LED", image: "/catalog/led.png", url: "", category: "Électronique", color: "#fef9c3" },
-  { key: "plinthe", label: "Plinthe", image: "/catalog/plinthe.png", url: "", category: "Accessoires", color: "#e7e5e4" },
-  { key: "colle", label: "Colle / Silicone", image: "/catalog/colle.png", url: "", category: "Consommables", color: "#fce7f3" },
+  // --- Charnières (lecot.be) ---
+  { key: "charnieres_sensys_8645i", label: "Charnière SENSYS 8645I", image: "/catalog/charnieres_sensys_8645i.png", url: "https://www.lecot.be/fr-be/hettich/198901-charniere-a-boitier-hettich-sensys-8645i", category: "Charnières", color: "#e2e8f0" },
+  { key: "plaque_vis_excentrique", label: "Plaque Montage VIS Excentrique", image: "/catalog/plaque_vis_excentrique.png", url: "https://www.lecot.be/fr-be/hettich/1287519-plaque-de-montage-hettich-sensys-vis-excentrique", category: "Fixations", color: "#f1f5f9" },
+  { key: "charnieres_intermat_9904", label: "Charnière INTERMAT 9904", image: "/catalog/charnieres_intermat_9904.png", url: "https://www.lecot.be/fr-be/hettich/1287563-charniere-a-boitier-hettich-intermat-9904", category: "Charnières", color: "#e2e8f0" },
+  { key: "plaque_montage_lineaire", label: "Plaque Montage Linéaire VIS D1.5", image: "/catalog/plaque_montage_lineaire.png", url: "https://www.lecot.be/fr-be/hettich/plaque-montage-lineaire-avec-reglage-en-hauteur-vis-d1-5-ue1-50-9117341", category: "Fixations", color: "#f1f5f9" },
+  { key: "cache_decoratif_b", label: "Cache Décoratif B INTERMAT 9904", image: "/catalog/cache_decoratif_b.png", url: "https://www.lecot.be/fr-be/hettich/cache-decoratif-b-hettich-intermat-9904-perfekt-5204", category: "Accessoires", color: "#fafafa" },
+  { key: "push_broche_percer", label: "Push to Open Broche à Percer", image: "/catalog/push_broche_percer.png", url: "https://www.lecot.be/fr-be/hettich/3092675-push-to-open-hettich-broche-a-percer", category: "Push to Open", color: "#f8f8f8" },
+  { key: "push_broche_strong_percer", label: "Push to Open Broche Strong Percer", image: "/catalog/push_broche_strong_percer.png", url: "https://www.lecot.be/fr-be/hettich/3092683-push-to-open-hettich-broche-strong-a-percer", category: "Push to Open", color: "#f8f8f8" },
+  { key: "charnieres_et582", label: "Charnière Spéciale ET 582", image: "/catalog/charnieres_et582.png", url: "https://www.lecot.be/fr-be/hettich/128765-charniere-hettich-sensys-et-582", category: "Charnières", color: "#e2e8f0" },
+  { key: "push_broche_visser", label: "Push to Open Broche Strong Visser", image: "/catalog/push_broche_visser.png", url: "https://www.lecot.be/fr-be/hettich/3092725-push-to-open-hettich-broche-strong-a-visser", category: "Push to Open", color: "#f8f8f8" },
+  { key: "charnieres_sensys_8657i", label: "Charnière SENSYS 8657I", image: "/catalog/charnieres_sensys_8657i.png", url: "https://www.lecot.be/fr-be/hettich/as0016436-charniere-a-boitier-hettich-sensys-8657i", category: "Charnières", color: "#e2e8f0" },
+  // --- Accessoires meuble (bermabru.be) ---
+  { key: "mc_line_dolphin", label: "MC Line Dolphin (meuble angle)", image: "/catalog/mc_line_dolphin.png", url: "https://www.bermabru.be/fr_BE/p/mc-line-dolphin-40cm-gauche-anthracite-avec-double-amortisseur/38944/", category: "Rangement", color: "#1e293b" },
+  { key: "eight_prise_gunmetal", label: "Eight Prise Gunmetal + USB", image: "/catalog/eight_prise_gunmetal.png", url: "https://www.bermabru.be/fr_BE/p/eight-prise-en-v-1-prise-usb-gunmetal/17171/", category: "Électronique", color: "#64748b" },
+  { key: "eight_prise_noir", label: "Eight Prise Noir + USB", image: "/catalog/eight_prise_noir.png", url: "https://www.bermabru.be/fr_BE/p/eight-prise-en-v-1-prise-usb-noir/47997/", category: "Électronique", color: "#0f172a" },
+  // --- Supports tube penderie (bermabru.be) ---
+  { key: "support_tube_sl781", label: "Support Tube SL781 Ovale Nickelé", image: "/catalog/support_tube_sl781.png", url: "https://www.bermabru.be/fr_BE/p/support-tube-sl781-oval-m6x25-nickele/244/", category: "Penderie", color: "#e2e8f0" },
+  { key: "vis_tube_oval_noir", label: "Vis Support Tube Ovale Noir", image: "/catalog/vis_tube_oval_noir.png", url: "https://www.bermabru.be/fr_BE/p/vis-pour-support-tube-oval-noir/230/", category: "Penderie", color: "#334155" },
+  { key: "support_tube_oval_noir", label: "Support Tube Ovale Noir", image: "/catalog/support_tube_oval_noir.png", url: "https://www.bermabru.be/fr_BE/p/support-tube-oval-noir/18312/", category: "Penderie", color: "#1e293b" },
+  { key: "vis_m6_penderie", label: "Vis M6 Support Tube Penderie", image: "/catalog/vis_m6_penderie.png", url: "https://www.bermabru.be/fr_BE/p/vis-pour-support-tube-penderie-m6a30mm/30619/", category: "Visserie", color: "#cbd5e1" },
+  // --- Clips korrekt (bermabru.be) ---
+  { key: "contreplaque_korrekt", label: "Contreplaque Clips Korrekt (fraiser)", image: "/catalog/contreplaque_korrekt.png", url: "https://www.bermabru.be/fr_BE/p/contreplaque-pr-clips-korrekt-a-fraiser/18728/", category: "Fixations", color: "#f1f5f9" },
+  { key: "clips_korrekt", label: "Clips Contre-plaque Korrekt (fraiser)", image: "/catalog/clips_korrekt.png", url: "https://www.bermabru.be/fr_BE/p/clips-pr-contre-plaque-pr-korrekt-a-fraiser/12821/", category: "Fixations", color: "#f1f5f9" },
+  // --- Compas & poignées (bermabru.be) ---
+  { key: "compas_relevage", label: "Compas Relevage Berma-lift Duo", image: "/catalog/compas_relevage.png", url: "https://www.bermabru.be/fr_BE/p/compas-de-relevage-berma-lift-duo-nickele/5443/", category: "Charnières", color: "#e2e8f0" },
+  { key: "poignee_ona_laiton", label: "Poignée ONA Laiton Brossé (256mm)", image: "/catalog/poignee_ona_laiton.png", url: "https://www.bermabru.be/fr_BE/p/poignee-ona-ba256-l50-aluminium-brose-fonce-laison/17036/", category: "Poignées", color: "#fde68a" },
+  { key: "poignee_ona_inox", label: "Poignée ONA Aspect Inox (256mm)", image: "/catalog/poignee_ona_inox.png", url: "https://www.bermabru.be/fr_BE/p/poignees-ona-ba256-l50-aluminium-look-inox/57385/", category: "Poignées", color: "#cbd5e1" },
+  { key: "poignee_ona_noir", label: "Poignée ONA Noir Brossé (256mm)", image: "/catalog/poignee_ona_noir.png", url: "https://www.bermabru.be/fr_BE/p/poignees-ona-ba256-l50-aluminium-brose-noir/18832/", category: "Poignées", color: "#1e293b" },
+  // --- Profils sans poignées (bermabru.be) ---
+  { key: "profil_yaren_noir", label: "Profil YAREN Noir Mat (5000mm)", image: "/catalog/profil_yaren_noir.png", url: "https://www.bermabru.be/fr_BE/p/profil-poignee-yaren-en-v-noir-pour-strip-decor-5000mm/3046/", category: "Profils", color: "#1e293b" },
+  { key: "plaque_fixation_profil", label: "Plaque Fixation Profil Poignée", image: "/catalog/plaque_fixation_profil.png", url: "https://www.bermabru.be/fr_BE/p/plaque-de-fixation-pour-profil-poignee/16978/", category: "Fixations", color: "#f1f5f9" },
+  { key: "profil_list_l", label: "Profil LIST-L Noir Mat (5000mm)", image: "/catalog/profil_list_l.png", url: "https://www.bermabru.be/fr_BE/p/pyn098-poignee-en-l-alu-noir-mat-r9005-5000mm/41670/", category: "Profils", color: "#1e293b" },
 ];
 
 const BELGIUM_HOLIDAYS_2026 = [
@@ -561,6 +581,7 @@ export default function Home() {
   const [savingPurchase, setSavingPurchase] = useState(false);
   const [selectedPurchase, setSelectedPurchase] = useState<PurchaseItem | null>(null);
   const [showCompletedPurchases, setShowCompletedPurchases] = useState(false);
+  const [showAtelierCatalog, setShowAtelierCatalog] = useState(false);
   const [atelierSelectedProduct, setAtelierSelectedProduct] = useState<CatalogProduct | null>(null);
   const [atelierQuantity, setAtelierQuantity] = useState(1);
   const [atelierProjectId, setAtelierProjectId] = useState("");
@@ -2897,8 +2918,74 @@ useEffect(() => {
     </div>
   );
 
+  const renderAtelierCatalog = () => {
+    const categories = Array.from(new Set(PRODUCT_CATALOG.map((p) => p.category)));
+    return (
+      <div style={{ marginTop: 24, display: "grid", gap: 28 }}>
+        <div style={{ background: "linear-gradient(135deg, #0f2447, #1a3a6e)", borderRadius: 24, padding: "24px 28px", color: "white" }}>
+          <div style={{ fontSize: 26, fontWeight: 900, marginBottom: 4 }}>Catalogue Achat Atelier</div>
+          <div style={{ fontSize: 14, opacity: 0.75 }}>Cliquez sur un produit pour l'acheter directement chez le fournisseur</div>
+        </div>
+        {categories.map((cat) => (
+          <div key={cat}>
+            <div style={{ fontSize: 13, fontWeight: 900, color: TEXT_LIGHT, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 14, paddingLeft: 2 }}>{cat}</div>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, 1fr)", gap: 14 }}>
+              {PRODUCT_CATALOG.filter((p) => p.category === cat).map((product) => (
+                <a
+                  key={product.key}
+                  href={product.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    background: "white",
+                    border: "1.5px solid #e2e8f0",
+                    borderRadius: 18,
+                    padding: isMobile ? "12px 8px" : "16px 12px",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 10,
+                    textDecoration: "none",
+                    boxShadow: "0 1px 6px rgba(0,0,0,0.05)",
+                    transition: "all 0.15s ease",
+                    cursor: "pointer",
+                  }}
+                >
+                  <div style={{
+                    width: isMobile ? 64 : 80,
+                    height: isMobile ? 64 : 80,
+                    borderRadius: 14,
+                    background: product.color,
+                    overflow: "hidden",
+                    flexShrink: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}>
+                    <img
+                      src={product.image}
+                      alt={product.label}
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    />
+                  </div>
+                  <div style={{ fontSize: isMobile ? 11 : 12, fontWeight: 700, color: TEXT_DARK, textAlign: "center", lineHeight: 1.3 }}>
+                    {product.label}
+                  </div>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: "#1e4d8c", background: "#eff6ff", padding: "3px 10px", borderRadius: 999 }}>
+                    Acheter →
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   const renderPurchases = () => {
     if (role === "atelier") return renderPurchasesAtelier();
+    if (showAtelierCatalog) return renderAtelierCatalog();
     return (
     <div style={{ marginTop: 24, display: "grid", gap: 24 }}>
       <div
@@ -4106,15 +4193,21 @@ useEffect(() => {
                 </div>
                 {role === "bureau" && (
                   <>
-                    {unreadPurchaseCount > 0 && (
+                    {unreadPurchaseCount > 0 && !showAtelierCatalog && (
                       <button onClick={markAllPurchasesRead} style={{ padding: "8px 14px", borderRadius: 10, background: "#fef9c3", border: "1px solid #fde68a", color: "#854d0e", fontSize: 12, fontWeight: 800, cursor: "pointer" }}>
                         Tout marquer lu
                       </button>
                     )}
-                    <button onClick={() => setShowPurchaseForm((prev) => !prev)}
-                      style={{ background: "linear-gradient(135deg, #0f2447, #1e4d8c)", color: "white", border: "none", borderRadius: 10, padding: "11px 20px", fontWeight: 800, fontSize: 13, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>
-                      {showPurchaseForm ? "Fermer" : "+ Achat projet"}
+                    <button onClick={() => { setShowAtelierCatalog((v) => !v); setShowPurchaseForm(false); }}
+                      style={{ background: showAtelierCatalog ? "linear-gradient(135deg, #0f2447, #1e4d8c)" : "white", color: showAtelierCatalog ? "white" : "#0f2447", border: "2px solid #0f2447", borderRadius: 10, padding: "10px 18px", fontWeight: 800, fontSize: 13, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>
+                      Achat Atelier
                     </button>
+                    {!showAtelierCatalog && (
+                      <button onClick={() => setShowPurchaseForm((prev) => !prev)}
+                        style={{ background: "linear-gradient(135deg, #0f2447, #1e4d8c)", color: "white", border: "none", borderRadius: 10, padding: "11px 20px", fontWeight: 800, fontSize: 13, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>
+                        {showPurchaseForm ? "Fermer" : "+ Achat projet"}
+                      </button>
+                    )}
                   </>
                 )}
               </>
