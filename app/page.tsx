@@ -127,6 +127,11 @@ type PurchaseItem = {
   project_number: string;
   item_type: string;
   description: string;
+  quantity: number;
+  purchase_url: string | null;
+  product_key: string | null;
+  requested_by: string;
+  is_read: boolean;
   is_completed: boolean;
   created_at: string;
   completed_at: string | null;
@@ -178,6 +183,30 @@ const PURCHASE_TYPES = [
   "Profil Alu",
   "Accessoires electronique",
   "Autres",
+];
+
+type CatalogProduct = {
+  key: string;
+  label: string;
+  image: string;
+  url: string;
+  category: string;
+  color: string;
+};
+
+const PRODUCT_CATALOG: CatalogProduct[] = [
+  { key: "panneau_blanc", label: "Panneau Blanc Mat", image: "/catalog/panneau_blanc.png", url: "", category: "Panneau", color: "#dbeafe" },
+  { key: "panneau_noir", label: "Panneau Noir Mat", image: "/catalog/panneau_noir.png", url: "", category: "Panneau", color: "#1e293b" },
+  { key: "panneau_bois", label: "Panneau Bois/Noyer", image: "/catalog/panneau_bois.png", url: "", category: "Panneau", color: "#d97706" },
+  { key: "charnieres", label: "Charnières Blum", image: "/catalog/charnieres.png", url: "", category: "Quincaillerie", color: "#cbd5e1" },
+  { key: "chants", label: "Chants ABS", image: "/catalog/chants.png", url: "", category: "Chants", color: "#bfdbfe" },
+  { key: "vis", label: "Vis / Chevilles", image: "/catalog/vis.png", url: "", category: "Visserie", color: "#e2e8f0" },
+  { key: "profil_alu", label: "Profil Aluminium", image: "/catalog/profil_alu.png", url: "", category: "Profil", color: "#94a3b8" },
+  { key: "tiroirs", label: "Glissières Tiroirs", image: "/catalog/tiroirs.png", url: "", category: "Quincaillerie", color: "#c7d2fe" },
+  { key: "poignees", label: "Poignées", image: "/catalog/poignees.png", url: "", category: "Quincaillerie", color: "#fde68a" },
+  { key: "led", label: "Éclairage LED", image: "/catalog/led.png", url: "", category: "Électronique", color: "#fef9c3" },
+  { key: "plinthe", label: "Plinthe", image: "/catalog/plinthe.png", url: "", category: "Accessoires", color: "#e7e5e4" },
+  { key: "colle", label: "Colle / Silicone", image: "/catalog/colle.png", url: "", category: "Consommables", color: "#fce7f3" },
 ];
 
 const BELGIUM_HOLIDAYS_2026 = [
@@ -532,6 +561,11 @@ export default function Home() {
   const [savingPurchase, setSavingPurchase] = useState(false);
   const [selectedPurchase, setSelectedPurchase] = useState<PurchaseItem | null>(null);
   const [showCompletedPurchases, setShowCompletedPurchases] = useState(false);
+  const [atelierSelectedProduct, setAtelierSelectedProduct] = useState<CatalogProduct | null>(null);
+  const [atelierQuantity, setAtelierQuantity] = useState(1);
+  const [atelierProjectId, setAtelierProjectId] = useState("");
+  const [atelierNote, setAtelierNote] = useState("");
+  const [savingAtelierOrder, setSavingAtelierOrder] = useState(false);
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [pin, setPin] = useState("");
@@ -1016,6 +1050,10 @@ useEffect(() => {
     return purchases.filter((item) => item.is_completed);
   }, [purchases]);
 
+  const unreadPurchaseCount = useMemo(() => {
+    return purchases.filter((item) => item.requested_by === "atelier" && !item.is_read && !item.is_completed).length;
+  }, [purchases]);
+
   const setProjectStatus = async (project: Project, newStatus: string) => {
     const oldStatus = project.status;
 
@@ -1285,6 +1323,52 @@ useEffect(() => {
     setPurchaseForm(emptyPurchaseForm);
     setShowPurchaseForm(false);
     await fetchPurchases();
+  };
+
+  const saveAtelierOrder = async () => {
+    if (!atelierSelectedProduct || !atelierProjectId) {
+      alert("Merci de choisir un projet et un produit.");
+      return;
+    }
+    const project = projects.find((p) => String(p.id) === atelierProjectId);
+    if (!project) return;
+
+    setSavingAtelierOrder(true);
+    const payload = {
+      project_id: project.id,
+      project_name: project.client_name,
+      project_number: project.project_number,
+      item_type: atelierSelectedProduct.category,
+      description: atelierNote.trim() || atelierSelectedProduct.label,
+      quantity: atelierQuantity,
+      purchase_url: atelierSelectedProduct.url || null,
+      product_key: atelierSelectedProduct.key,
+      requested_by: "atelier",
+      is_read: false,
+      is_completed: false,
+    };
+    const { error } = await supabase.from("project_purchases").insert(payload);
+    setSavingAtelierOrder(false);
+    if (error) { alert("Erreur lors de l'envoi de la demande."); return; }
+    setAtelierSelectedProduct(null);
+    setAtelierQuantity(1);
+    setAtelierProjectId("");
+    setAtelierNote("");
+    await fetchPurchases();
+    alert("Demande envoyée au bureau !");
+  };
+
+  const markPurchaseRead = async (item: PurchaseItem) => {
+    if (item.is_read) return;
+    await supabase.from("project_purchases").update({ is_read: true }).eq("id", item.id);
+    setPurchases((prev) => prev.map((p) => p.id === item.id ? { ...p, is_read: true } : p));
+  };
+
+  const markAllPurchasesRead = async () => {
+    const unread = purchases.filter((p) => p.requested_by === "atelier" && !p.is_read);
+    if (unread.length === 0) return;
+    await supabase.from("project_purchases").update({ is_read: true }).in("id", unread.map((p) => p.id));
+    setPurchases((prev) => prev.map((p) => ({ ...p, is_read: true })));
   };
 
   const updatePurchase = async () => {
@@ -2670,7 +2754,152 @@ useEffect(() => {
     </div>
   );
 
-  const renderPurchases = () => (
+  const renderPurchasesAtelier = () => (
+    <div style={{ marginTop: 24, display: "grid", gap: 24 }}>
+      <div style={{ background: "linear-gradient(135deg, #0f2447, #1a3a6e)", borderRadius: 24, padding: "24px 28px", color: "white" }}>
+        <div style={{ fontSize: 26, fontWeight: 900, marginBottom: 4 }}>Commander un produit</div>
+        <div style={{ fontSize: 14, opacity: 0.75 }}>Sélectionne un produit et envoie une demande au bureau</div>
+      </div>
+
+      {/* Product grid */}
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(3, 1fr)" : "repeat(4, 1fr)", gap: 14 }}>
+        {PRODUCT_CATALOG.map((product) => {
+          const isSelected = atelierSelectedProduct?.key === product.key;
+          return (
+            <button
+              key={product.key}
+              onClick={() => setAtelierSelectedProduct(isSelected ? null : product)}
+              style={{
+                background: isSelected ? "#0f2447" : "white",
+                border: isSelected ? "2.5px solid #1e4d8c" : "1.5px solid #e2e8f0",
+                borderRadius: 18,
+                padding: isMobile ? "12px 6px" : "16px 10px",
+                cursor: "pointer",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 8,
+                boxShadow: isSelected ? "0 4px 20px rgba(15,36,71,0.25)" : "0 1px 4px rgba(0,0,0,0.05)",
+                transition: "all 0.15s ease",
+              }}
+            >
+              <div style={{
+                width: isMobile ? 52 : 64,
+                height: isMobile ? 52 : 64,
+                borderRadius: 14,
+                background: product.color,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                overflow: "hidden",
+                flexShrink: 0,
+              }}>
+                <img
+                  src={product.image}
+                  alt={product.label}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    target.style.display = "none";
+                    const parent = target.parentElement;
+                    if (parent && !parent.querySelector("span")) {
+                      const span = document.createElement("span");
+                      span.textContent = product.label.charAt(0);
+                      span.style.cssText = `font-size:22px;font-weight:900;color:${isSelected ? "white" : "#0f172a"}`;
+                      parent.appendChild(span);
+                    }
+                  }}
+                />
+              </div>
+              <div style={{
+                fontSize: isMobile ? 10 : 12,
+                fontWeight: 700,
+                color: isSelected ? "white" : TEXT_DARK,
+                textAlign: "center",
+                lineHeight: 1.3,
+              }}>
+                {product.label}
+              </div>
+              {isSelected && (
+                <div style={{ width: 8, height: 8, borderRadius: 999, background: "#60a5fa" }} />
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Order panel */}
+      {atelierSelectedProduct && (
+        <div style={{ background: "white", borderRadius: 24, padding: 24, border: "2px solid #1e3a8a", boxShadow: "0 4px 20px rgba(15,36,71,0.12)" }}>
+          <div style={{ fontSize: 20, fontWeight: 900, color: TEXT_DARK, marginBottom: 18 }}>
+            Demande : {atelierSelectedProduct.label}
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 16 }}>
+            <div>
+              <div style={bigLabelStyle}>Projet</div>
+              <select value={atelierProjectId} onChange={(e) => setAtelierProjectId(e.target.value)} style={bigInputStyle}>
+                <option value="">Choisir un projet</option>
+                {projects.filter((p) => p.status !== "Terminé").map((p) => (
+                  <option key={p.id} value={String(p.id)}>{p.project_number} - {p.client_name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <div style={bigLabelStyle}>Quantité (pcs)</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <button onClick={() => setAtelierQuantity((q) => Math.max(1, q - 1))} style={{ width: 44, height: 44, borderRadius: 10, border: "1.5px solid #e2e8f0", background: "white", fontSize: 22, fontWeight: 900, cursor: "pointer", color: TEXT_DARK }}>−</button>
+                <div style={{ ...bigInputStyle, textAlign: "center", flex: 1, padding: "10px 0", fontWeight: 900, fontSize: 22 }}>{atelierQuantity}</div>
+                <button onClick={() => setAtelierQuantity((q) => q + 1)} style={{ width: 44, height: 44, borderRadius: 10, border: "1.5px solid #e2e8f0", background: "white", fontSize: 22, fontWeight: 900, cursor: "pointer", color: TEXT_DARK }}>+</button>
+              </div>
+            </div>
+            <div style={{ gridColumn: isMobile ? "auto" : "1 / -1" }}>
+              <div style={bigLabelStyle}>Note (optionnel)</div>
+              <input value={atelierNote} onChange={(e) => setAtelierNote(e.target.value)} placeholder="Ex: couleur spécifique, dimension..." style={bigInputStyle} />
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 12, marginTop: 20, flexWrap: "wrap" }}>
+            <button onClick={saveAtelierOrder} disabled={savingAtelierOrder} style={{ ...blueButtonTop, opacity: savingAtelierOrder ? 0.7 : 1 }}>
+              {savingAtelierOrder ? "Envoi..." : "Envoyer la demande"}
+            </button>
+            <button onClick={() => { setAtelierSelectedProduct(null); setAtelierNote(""); setAtelierQuantity(1); }} style={outlineButtonTop}>Annuler</button>
+          </div>
+        </div>
+      )}
+
+      {/* My sent requests */}
+      <div style={{ background: "white", borderRadius: 24, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+        <div style={{ fontSize: 20, fontWeight: 900, color: TEXT_DARK, marginBottom: 16 }}>Mes demandes envoyées</div>
+        <div style={{ display: "grid", gap: 12 }}>
+          {activePurchases.filter((p) => p.requested_by === "atelier").length === 0 ? (
+            <div style={{ color: TEXT_LIGHT }}>Aucune demande en cours.</div>
+          ) : (
+            activePurchases.filter((p) => p.requested_by === "atelier").map((item) => (
+              <div key={item.id} style={{ display: "flex", gap: 14, alignItems: "center", border: "1px solid #e2e8f0", borderRadius: 16, padding: "12px 16px" }}>
+                <div style={{ width: 44, height: 44, borderRadius: 10, background: PRODUCT_CATALOG.find((c) => c.key === item.product_key)?.color || BG_SOFT, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, overflow: "hidden" }}>
+                  {item.product_key && PRODUCT_CATALOG.find((c) => c.key === item.product_key)?.image ? (
+                    <img src={PRODUCT_CATALOG.find((c) => c.key === item.product_key)!.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} onError={(e) => { e.currentTarget.style.display = "none"; }} />
+                  ) : (
+                    <span style={{ fontWeight: 800, fontSize: 16, color: TEXT_MEDIUM }}>{item.item_type.charAt(0)}</span>
+                  )}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 800, fontSize: 15, color: TEXT_DARK }}>{item.description}</div>
+                  <div style={{ fontSize: 13, color: TEXT_LIGHT, marginTop: 2 }}>{item.project_number} · {item.project_name} · <span style={{ fontWeight: 700 }}>{item.quantity} pcs</span></div>
+                </div>
+                <div style={{ padding: "4px 10px", borderRadius: 999, background: item.is_completed ? "#dcfce7" : "#fef9c3", color: item.is_completed ? "#166534" : "#854d0e", fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
+                  {item.is_completed ? "Commandé" : "En attente"}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderPurchases = () => {
+    if (role === "atelier") return renderPurchasesAtelier();
+    return (
     <div style={{ marginTop: 24, display: "grid", gap: 24 }}>
       <div
         style={{
@@ -2831,18 +3060,20 @@ useEffect(() => {
                 activePurchases.map((item) => (
                   <div
                     key={item.id}
+                    onClick={() => { setSelectedPurchase(item); markPurchaseRead(item); }}
                     style={{
                       display: "grid",
                       gridTemplateColumns: "52px 1fr",
                       gap: 14,
-                      border: "1px solid #e2e8f0",
+                      border: item.requested_by === "atelier" && !item.is_read ? "2px solid #1e4d8c" : "1px solid #e2e8f0",
                       borderRadius: 22,
                       padding: 16,
-                      background: "white",
+                      background: item.requested_by === "atelier" && !item.is_read ? "#eff6ff" : "white",
+                      cursor: "pointer",
                     }}
                   >
                     <button
-                      onClick={() => togglePurchaseCompleted(item)}
+                      onClick={(e) => { e.stopPropagation(); togglePurchaseCompleted(item); }}
                       title="Marquer comme terminé"
                       style={{
                         width: 36,
@@ -2852,68 +3083,48 @@ useEffect(() => {
                         background: "white",
                         cursor: "pointer",
                         marginTop: 6,
+                        flexShrink: 0,
                       }}
                     />
 
-                    <button
-                      onClick={() => setSelectedPurchase(item)}
-                      style={{
-                        border: "none",
-                        background: "transparent",
-                        textAlign: "left",
-                        cursor: "pointer",
-                        padding: 0,
-                      }}
-                    >
-                      <div
-                        style={{
-                          fontSize: isMobile ? 22 : 28,
-                          fontWeight: 900,
-                          color: TEXT_DARK,
-                          lineHeight: 1.1,
-                        }}
-                      >
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginBottom: 4 }}>
+                        {item.requested_by === "atelier" && (
+                          <span style={{ padding: "3px 9px", borderRadius: 999, background: "#1e3a8a", color: "white", fontSize: 11, fontWeight: 800 }}>
+                            Demande atelier
+                          </span>
+                        )}
+                        {item.requested_by === "atelier" && !item.is_read && (
+                          <span style={{ padding: "3px 9px", borderRadius: 999, background: "#fef08a", color: "#854d0e", fontSize: 11, fontWeight: 800 }}>
+                            Nouveau
+                          </span>
+                        )}
+                      </div>
+                      <div style={{ fontSize: isMobile ? 18 : 22, fontWeight: 900, color: TEXT_DARK, lineHeight: 1.1 }}>
                         {item.project_name}
                       </div>
-
-                      <div
-                        style={{
-                          marginTop: 6,
-                          color: TEXT_MEDIUM,
-                          fontWeight: 800,
-                          fontSize: 16,
-                        }}
-                      >
+                      <div style={{ marginTop: 4, color: TEXT_MEDIUM, fontWeight: 700, fontSize: 14 }}>
                         {item.project_number}
+                        {item.quantity > 1 && <span style={{ marginLeft: 8, color: BRAND_BLUE, fontWeight: 800 }}>× {item.quantity} pcs</span>}
                       </div>
-
-                      <div
-                        style={{
-                          marginTop: 10,
-                          display: "inline-block",
-                          padding: "6px 10px",
-                          borderRadius: 999,
-                          background: BG_SOFT,
-                          border: "1px solid #e2e8f0",
-                          color: TEXT_DARK,
-                          fontWeight: 800,
-                          fontSize: 13,
-                        }}
-                      >
-                        {item.item_type}
+                      <div style={{ marginTop: 8, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                        <span style={{ padding: "4px 10px", borderRadius: 999, background: BG_SOFT, border: "1px solid #e2e8f0", color: TEXT_DARK, fontWeight: 800, fontSize: 12 }}>
+                          {item.item_type}
+                        </span>
+                        {item.purchase_url && (
+                          <a
+                            href={item.purchase_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            style={{ padding: "4px 12px", borderRadius: 999, background: "#0f2447", color: "white", fontSize: 12, fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}
+                          >
+                            Acheter →
+                          </a>
+                        )}
                       </div>
-
-                      <div
-                        style={{
-                          marginTop: 10,
-                          color: TEXT_LIGHT,
-                          fontSize: 14,
-                          lineHeight: 1.5,
-                        }}
-                      >
-                        {item.description}
-                      </div>
-                    </button>
+                      <div style={{ marginTop: 8, color: TEXT_LIGHT, fontSize: 13, lineHeight: 1.5 }}>{item.description}</div>
+                    </div>
                   </div>
                 ))
               )}
@@ -3146,7 +3357,8 @@ useEffect(() => {
         </div>
       </div>
     </div>
-  );
+    );
+  };
 
   const renderCalendar = () => (
     <div style={{ marginTop: 24, display: "grid", gap: 24 }}>
@@ -3756,9 +3968,14 @@ useEffect(() => {
 
               <button
                 onClick={() => setActiveTab("purchases")}
-                style={activeTab === "purchases" ? sidebarActiveButton : sidebarButton}
+                style={{ ...(activeTab === "purchases" ? sidebarActiveButton : sidebarButton), position: "relative" as const }}
               >
                 Achat projet
+                {unreadPurchaseCount > 0 && (
+                  <span style={{ position: "absolute", top: -4, right: -4, background: "#dc2626", color: "white", borderRadius: 999, fontSize: 10, fontWeight: 900, padding: "2px 6px", minWidth: 18, textAlign: "center" }}>
+                    {unreadPurchaseCount}
+                  </span>
+                )}
               </button>
 
               {role === "bureau" && (
@@ -3791,6 +4008,37 @@ useEffect(() => {
             boxShadow: activeTab === "projects" ? "0 4px 20px rgba(15,36,71,0.3)" : "0 1px 4px rgba(0,0,0,0.04)",
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 16, width: "100%" }}>
+            {/* Notification bell — always visible top right */}
+            {unreadPurchaseCount > 0 && activeTab !== "purchases" && (
+              <button
+                onClick={() => setActiveTab("purchases")}
+                title={`${unreadPurchaseCount} demande(s) atelier non lue(s)`}
+                style={{
+                  position: "absolute" as const,
+                  top: isMobile ? 8 : 12,
+                  right: isMobile ? 8 : 20,
+                  zIndex: 10,
+                  background: "white",
+                  border: "none",
+                  borderRadius: 999,
+                  width: 40,
+                  height: 40,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={activeTab === "projects" ? "#1e3a8a" : "#1e3a8a"} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+                <span style={{ position: "absolute", top: -3, right: -3, background: "#dc2626", color: "white", borderRadius: 999, fontSize: 10, fontWeight: 900, padding: "2px 5px", minWidth: 16, textAlign: "center" }}>
+                  {unreadPurchaseCount}
+                </span>
+              </button>
+            )}
             {activeTab === "projects" ? (
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", gap: 12 }}>
                 {/* Left: filters */}
@@ -3853,11 +4101,22 @@ useEffect(() => {
               </>
             ) : activeTab === "purchases" ? (
               <>
-                <div style={{ flex: 1, fontSize: 15, color: "#64748b", fontWeight: 600 }}>Achats liés aux projets</div>
-                <button onClick={() => setShowPurchaseForm((prev) => !prev)}
-                  style={{ background: "linear-gradient(135deg, #0f2447, #1e4d8c)", color: "white", border: "none", borderRadius: 10, padding: "11px 20px", fontWeight: 800, fontSize: 13, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>
-                  {showPurchaseForm ? "Fermer" : "+ Achat projet"}
-                </button>
+                <div style={{ flex: 1, fontSize: 15, color: "#64748b", fontWeight: 600 }}>
+                  {role === "atelier" ? "Commander des produits" : "Achats liés aux projets"}
+                </div>
+                {role === "bureau" && (
+                  <>
+                    {unreadPurchaseCount > 0 && (
+                      <button onClick={markAllPurchasesRead} style={{ padding: "8px 14px", borderRadius: 10, background: "#fef9c3", border: "1px solid #fde68a", color: "#854d0e", fontSize: 12, fontWeight: 800, cursor: "pointer" }}>
+                        Tout marquer lu
+                      </button>
+                    )}
+                    <button onClick={() => setShowPurchaseForm((prev) => !prev)}
+                      style={{ background: "linear-gradient(135deg, #0f2447, #1e4d8c)", color: "white", border: "none", borderRadius: 10, padding: "11px 20px", fontWeight: 800, fontSize: 13, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>
+                      {showPurchaseForm ? "Fermer" : "+ Achat projet"}
+                    </button>
+                  </>
+                )}
               </>
             ) : (
               <div style={{ flex: 1 }} />
