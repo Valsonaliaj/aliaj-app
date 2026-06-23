@@ -2813,115 +2813,118 @@ useEffect(() => {
         <div style={{ fontSize: 14, opacity: 0.75 }}>Sélectionne un produit et envoie une demande au bureau</div>
       </div>
 
-      {/* Product grid — grouped by category */}
-      {Array.from(new Set(PRODUCT_CATALOG.map((p) => p.category))).map((cat) => (
-        <div key={cat}>
-          <div style={{ fontSize: 13, fontWeight: 900, color: TEXT_LIGHT, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12, paddingLeft: 2 }}>{cat}</div>
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(3, 1fr)", gap: 14 }}>
-            {PRODUCT_CATALOG.filter((p) => p.category === cat).map((product) => {
-              const isSelected = atelierSelectedProduct?.key === product.key;
-              return (
-                <button
-                  key={product.key}
-                  onClick={() => setAtelierSelectedProduct(isSelected ? null : product)}
-                  style={{
-                    background: isSelected ? "#0f2447" : "white",
-                    border: isSelected ? "2.5px solid #1e4d8c" : "1.5px solid #e2e8f0",
-                    borderRadius: 18,
-                    padding: isMobile ? "12px 8px" : "16px 12px",
-                    cursor: "pointer",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: 10,
-                    boxShadow: isSelected ? "0 4px 20px rgba(15,36,71,0.25)" : "0 1px 4px rgba(0,0,0,0.05)",
-                    transition: "all 0.15s ease",
-                  }}
-                >
-                  <div style={{
-                    width: isMobile ? 80 : 100,
-                    height: isMobile ? 80 : 100,
-                    borderRadius: 14,
-                    background: product.color,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    overflow: "hidden",
-                    flexShrink: 0,
-                  }}>
-                    <img
-                      src={product.image}
-                      alt={product.label}
-                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                      onError={(e) => {
-                        const target = e.currentTarget;
-                        target.style.display = "none";
-                        const parent = target.parentElement;
-                        if (parent && !parent.querySelector("span")) {
-                          const span = document.createElement("span");
-                          span.textContent = product.label.charAt(0);
-                          span.style.cssText = `font-size:22px;font-weight:900;color:${isSelected ? "white" : "#0f172a"}`;
-                          parent.appendChild(span);
-                        }
-                      }}
-                    />
-                  </div>
-                  <div style={{
-                    fontSize: isMobile ? 11 : 13,
-                    fontWeight: 700,
-                    color: isSelected ? "white" : TEXT_DARK,
-                    textAlign: "center",
-                    lineHeight: 1.3,
-                  }}>
-                    {product.label}
-                  </div>
-                  {isSelected && (
-                    <div style={{ width: 8, height: 8, borderRadius: 999, background: "#60a5fa" }} />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      ))}
+      {/* Product grid — grouped by category, order panel appears inline under selected category */}
+      {Array.from(new Set(PRODUCT_CATALOG.map((p) => p.category))).map((cat) => {
+        const catHasSelected = atelierSelectedProduct?.category === cat;
+        return (
+          <div key={cat}>
+            <div style={{ fontSize: 13, fontWeight: 900, color: TEXT_LIGHT, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12, paddingLeft: 2 }}>{cat}</div>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(3, 1fr)", gap: 14 }}>
+              {PRODUCT_CATALOG.filter((p) => p.category === cat).map((product) => {
+                const isSelected = atelierSelectedProduct?.key === product.key;
+                return (
+                  <button
+                    key={product.key}
+                    onClick={() => setAtelierSelectedProduct(isSelected ? null : product)}
+                    style={{
+                      background: isSelected ? "#0f2447" : "white",
+                      border: isSelected ? "2.5px solid #1e4d8c" : "1.5px solid #e2e8f0",
+                      borderRadius: 18,
+                      padding: isMobile ? "12px 8px" : "16px 12px",
+                      cursor: "pointer",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: 10,
+                      boxShadow: isSelected ? "0 4px 20px rgba(15,36,71,0.25)" : "0 1px 4px rgba(0,0,0,0.05)",
+                      transition: "all 0.15s ease",
+                    }}
+                  >
+                    <div style={{
+                      width: isMobile ? 80 : 100,
+                      height: isMobile ? 80 : 100,
+                      borderRadius: 14,
+                      background: product.color,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      overflow: "hidden",
+                      flexShrink: 0,
+                    }}>
+                      <img
+                        src={product.image}
+                        alt={product.label}
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          target.style.display = "none";
+                          const parent = target.parentElement;
+                          if (parent && !parent.querySelector("span")) {
+                            const span = document.createElement("span");
+                            span.textContent = product.label.charAt(0);
+                            span.style.cssText = `font-size:22px;font-weight:900;color:${isSelected ? "white" : "#0f172a"}`;
+                            parent.appendChild(span);
+                          }
+                        }}
+                      />
+                    </div>
+                    <div style={{
+                      fontSize: isMobile ? 11 : 13,
+                      fontWeight: 700,
+                      color: isSelected ? "white" : TEXT_DARK,
+                      textAlign: "center",
+                      lineHeight: 1.3,
+                    }}>
+                      {product.label}
+                    </div>
+                    {isSelected && (
+                      <div style={{ width: 8, height: 8, borderRadius: 999, background: "#60a5fa" }} />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
 
-      {/* Order panel */}
-      {atelierSelectedProduct && (
-        <div style={{ background: "white", borderRadius: 24, padding: 24, border: "2px solid #1e3a8a", boxShadow: "0 4px 20px rgba(15,36,71,0.12)" }}>
-          <div style={{ fontSize: 20, fontWeight: 900, color: TEXT_DARK, marginBottom: 18 }}>
-            Demande : {atelierSelectedProduct.label}
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 16 }}>
-            <div>
-              <div style={bigLabelStyle}>Projet (optionnel)</div>
-              <select value={atelierProjectId} onChange={(e) => setAtelierProjectId(e.target.value)} style={bigInputStyle}>
-                <option value="">Aucun projet (commande générale)</option>
-                {projects.filter((p) => p.status !== "Terminé").map((p) => (
-                  <option key={p.id} value={String(p.id)}>{p.project_number} - {p.client_name}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <div style={bigLabelStyle}>Quantité (pcs)</div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <button onClick={() => setAtelierQuantity((q) => Math.max(1, q - 1))} style={{ width: 44, height: 44, borderRadius: 10, border: "1.5px solid #e2e8f0", background: "white", fontSize: 22, fontWeight: 900, cursor: "pointer", color: TEXT_DARK }}>−</button>
-                <div style={{ ...bigInputStyle, textAlign: "center", flex: 1, padding: "10px 0", fontWeight: 900, fontSize: 22 }}>{atelierQuantity}</div>
-                <button onClick={() => setAtelierQuantity((q) => q + 1)} style={{ width: 44, height: 44, borderRadius: 10, border: "1.5px solid #e2e8f0", background: "white", fontSize: 22, fontWeight: 900, cursor: "pointer", color: TEXT_DARK }}>+</button>
+            {/* Order panel — appears right below the category that contains the selected product */}
+            {catHasSelected && atelierSelectedProduct && (
+              <div style={{ marginTop: 14, background: "white", borderRadius: 20, padding: 20, border: "2px solid #1e3a8a", boxShadow: "0 4px 20px rgba(15,36,71,0.12)" }}>
+                <div style={{ fontSize: 17, fontWeight: 900, color: TEXT_DARK, marginBottom: 16 }}>
+                  Demande : {atelierSelectedProduct.label}
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 14 }}>
+                  <div>
+                    <div style={bigLabelStyle}>Projet (optionnel)</div>
+                    <select value={atelierProjectId} onChange={(e) => setAtelierProjectId(e.target.value)} style={bigInputStyle}>
+                      <option value="">Aucun projet (commande générale)</option>
+                      {projects.filter((p) => p.status !== "Terminé").map((p) => (
+                        <option key={p.id} value={String(p.id)}>{p.project_number} - {p.client_name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <div style={bigLabelStyle}>Quantité (pcs)</div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <button onClick={() => setAtelierQuantity((q) => Math.max(1, q - 1))} style={{ width: 44, height: 44, borderRadius: 10, border: "1.5px solid #e2e8f0", background: "white", fontSize: 22, fontWeight: 900, cursor: "pointer", color: TEXT_DARK }}>−</button>
+                      <div style={{ ...bigInputStyle, textAlign: "center", flex: 1, padding: "10px 0", fontWeight: 900, fontSize: 22 }}>{atelierQuantity}</div>
+                      <button onClick={() => setAtelierQuantity((q) => q + 1)} style={{ width: 44, height: 44, borderRadius: 10, border: "1.5px solid #e2e8f0", background: "white", fontSize: 22, fontWeight: 900, cursor: "pointer", color: TEXT_DARK }}>+</button>
+                    </div>
+                  </div>
+                  <div style={{ gridColumn: isMobile ? "auto" : "1 / -1" }}>
+                    <div style={bigLabelStyle}>Note (optionnel)</div>
+                    <input value={atelierNote} onChange={(e) => setAtelierNote(e.target.value)} placeholder="Ex: couleur spécifique, dimension..." style={bigInputStyle} />
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 12, marginTop: 16, flexWrap: "wrap" }}>
+                  <button onClick={saveAtelierOrder} disabled={savingAtelierOrder} style={{ ...blueButtonTop, opacity: savingAtelierOrder ? 0.7 : 1 }}>
+                    {savingAtelierOrder ? "Envoi..." : "Envoyer la demande"}
+                  </button>
+                  <button onClick={() => { setAtelierSelectedProduct(null); setAtelierNote(""); setAtelierQuantity(1); }} style={outlineButtonTop}>Annuler</button>
+                </div>
               </div>
-            </div>
-            <div style={{ gridColumn: isMobile ? "auto" : "1 / -1" }}>
-              <div style={bigLabelStyle}>Note (optionnel)</div>
-              <input value={atelierNote} onChange={(e) => setAtelierNote(e.target.value)} placeholder="Ex: couleur spécifique, dimension..." style={bigInputStyle} />
-            </div>
+            )}
           </div>
-          <div style={{ display: "flex", gap: 12, marginTop: 20, flexWrap: "wrap" }}>
-            <button onClick={saveAtelierOrder} disabled={savingAtelierOrder} style={{ ...blueButtonTop, opacity: savingAtelierOrder ? 0.7 : 1 }}>
-              {savingAtelierOrder ? "Envoi..." : "Envoyer la demande"}
-            </button>
-            <button onClick={() => { setAtelierSelectedProduct(null); setAtelierNote(""); setAtelierQuantity(1); }} style={outlineButtonTop}>Annuler</button>
-          </div>
-        </div>
-      )}
+        );
+      })}
 
       {/* My sent requests */}
       <div style={{ background: "white", borderRadius: 24, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
