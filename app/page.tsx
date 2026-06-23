@@ -2813,72 +2813,77 @@ useEffect(() => {
         <div style={{ fontSize: 14, opacity: 0.75 }}>Sélectionne un produit et envoie une demande au bureau</div>
       </div>
 
-      {/* Product grid */}
-      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(3, 1fr)", gap: 14 }}>
-        {PRODUCT_CATALOG.map((product) => {
-          const isSelected = atelierSelectedProduct?.key === product.key;
-          return (
-            <button
-              key={product.key}
-              onClick={() => setAtelierSelectedProduct(isSelected ? null : product)}
-              style={{
-                background: isSelected ? "#0f2447" : "white",
-                border: isSelected ? "2.5px solid #1e4d8c" : "1.5px solid #e2e8f0",
-                borderRadius: 18,
-                padding: isMobile ? "12px 8px" : "16px 12px",
-                cursor: "pointer",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 10,
-                boxShadow: isSelected ? "0 4px 20px rgba(15,36,71,0.25)" : "0 1px 4px rgba(0,0,0,0.05)",
-                transition: "all 0.15s ease",
-              }}
-            >
-              <div style={{
-                width: isMobile ? 80 : 100,
-                height: isMobile ? 80 : 100,
-                borderRadius: 14,
-                background: product.color,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                overflow: "hidden",
-                flexShrink: 0,
-              }}>
-                <img
-                  src={product.image}
-                  alt={product.label}
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  onError={(e) => {
-                    const target = e.currentTarget;
-                    target.style.display = "none";
-                    const parent = target.parentElement;
-                    if (parent && !parent.querySelector("span")) {
-                      const span = document.createElement("span");
-                      span.textContent = product.label.charAt(0);
-                      span.style.cssText = `font-size:22px;font-weight:900;color:${isSelected ? "white" : "#0f172a"}`;
-                      parent.appendChild(span);
-                    }
+      {/* Product grid — grouped by category */}
+      {Array.from(new Set(PRODUCT_CATALOG.map((p) => p.category))).map((cat) => (
+        <div key={cat}>
+          <div style={{ fontSize: 13, fontWeight: 900, color: TEXT_LIGHT, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12, paddingLeft: 2 }}>{cat}</div>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(3, 1fr)", gap: 14 }}>
+            {PRODUCT_CATALOG.filter((p) => p.category === cat).map((product) => {
+              const isSelected = atelierSelectedProduct?.key === product.key;
+              return (
+                <button
+                  key={product.key}
+                  onClick={() => setAtelierSelectedProduct(isSelected ? null : product)}
+                  style={{
+                    background: isSelected ? "#0f2447" : "white",
+                    border: isSelected ? "2.5px solid #1e4d8c" : "1.5px solid #e2e8f0",
+                    borderRadius: 18,
+                    padding: isMobile ? "12px 8px" : "16px 12px",
+                    cursor: "pointer",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 10,
+                    boxShadow: isSelected ? "0 4px 20px rgba(15,36,71,0.25)" : "0 1px 4px rgba(0,0,0,0.05)",
+                    transition: "all 0.15s ease",
                   }}
-                />
-              </div>
-              <div style={{
-                fontSize: isMobile ? 11 : 13,
-                fontWeight: 700,
-                color: isSelected ? "white" : TEXT_DARK,
-                textAlign: "center",
-                lineHeight: 1.3,
-              }}>
-                {product.label}
-              </div>
-              {isSelected && (
-                <div style={{ width: 8, height: 8, borderRadius: 999, background: "#60a5fa" }} />
-              )}
-            </button>
-          );
-        })}
-      </div>
+                >
+                  <div style={{
+                    width: isMobile ? 80 : 100,
+                    height: isMobile ? 80 : 100,
+                    borderRadius: 14,
+                    background: product.color,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    overflow: "hidden",
+                    flexShrink: 0,
+                  }}>
+                    <img
+                      src={product.image}
+                      alt={product.label}
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        target.style.display = "none";
+                        const parent = target.parentElement;
+                        if (parent && !parent.querySelector("span")) {
+                          const span = document.createElement("span");
+                          span.textContent = product.label.charAt(0);
+                          span.style.cssText = `font-size:22px;font-weight:900;color:${isSelected ? "white" : "#0f172a"}`;
+                          parent.appendChild(span);
+                        }
+                      }}
+                    />
+                  </div>
+                  <div style={{
+                    fontSize: isMobile ? 11 : 13,
+                    fontWeight: 700,
+                    color: isSelected ? "white" : TEXT_DARK,
+                    textAlign: "center",
+                    lineHeight: 1.3,
+                  }}>
+                    {product.label}
+                  </div>
+                  {isSelected && (
+                    <div style={{ width: 8, height: 8, borderRadius: 999, background: "#60a5fa" }} />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ))}
 
       {/* Order panel */}
       {atelierSelectedProduct && (
