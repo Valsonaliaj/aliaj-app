@@ -4127,7 +4127,7 @@ useEffect(() => {
               ? "linear-gradient(135deg, #0f2447 0%, #1a3a6e 60%, #1e4d8c 100%)"
               : "white",
             borderBottom: activeTab === "projects" ? "none" : "1px solid #e2e8f0",
-            padding: activeTab === "projects" ? "16px 28px 0 28px" : "14px 28px",
+            padding: activeTab === "projects" ? (isMobile ? "10px 14px 0 14px" : "16px 28px 0 28px") : (isMobile ? "10px 14px" : "14px 28px"),
             display: "flex", flexDirection: "column", gap: 0,
             flexShrink: 0,
             minWidth: 0,
@@ -4166,30 +4166,34 @@ useEffect(() => {
               </button>
             )}
             {activeTab === "projects" ? (
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", gap: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", gap: isMobile ? 6 : 12, flexWrap: isMobile ? "wrap" as const : "nowrap" as const }}>
                 {/* Left: filters */}
-                <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                <div style={{ display: "flex", gap: isMobile ? 6 : 10, alignItems: "center", flex: 1, minWidth: 0 }}>
                   <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Rechercher..."
-                    style={{ width: 180, padding: "11px 14px", fontSize: 13, borderRadius: 10,
+                    style={{ width: isMobile ? "100%" : 180, minWidth: 0, flex: isMobile ? 1 : "none", padding: isMobile ? "8px 10px" : "11px 14px", fontSize: isMobile ? 12 : 13, borderRadius: 10,
                       border: "1.5px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.12)",
                       color: "white", outline: "none", boxSizing: "border-box" as const }} />
-                  <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
-                    style={{ padding: "11px 12px", fontSize: 13, fontWeight: 700, borderRadius: 10,
-                      border: "1.5px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.12)",
-                      color: statusFilter ? "white" : "rgba(255,255,255,0.6)", outline: "none", cursor: "pointer" }}>
-                    <option value="" style={{ color: "#0f172a" }}>Statut</option>
-                    {STATUS_OPTIONS.map((s) => <option key={s} value={s} style={{ color: "#0f172a" }}>{s}</option>)}
-                  </select>
-                  <select value={projectSort} onChange={(e) => setProjectSort(e.target.value as ProjectSortOption)}
-                    style={{ padding: "11px 12px", fontSize: 13, fontWeight: 700, borderRadius: 10,
-                      border: "1.5px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.12)",
-                      color: "white", outline: "none", cursor: "pointer" }}>
-                    <option value="fabrication_desc" style={{ color: "#0f172a" }}>Fabrication ↓</option>
-                    <option value="installation_asc" style={{ color: "#0f172a" }}>Pose ↑</option>
-                    <option value="client_asc" style={{ color: "#0f172a" }}>Client A→Z</option>
-                    <option value="project_number_asc" style={{ color: "#0f172a" }}>N° projet</option>
-                    <option value="status_asc" style={{ color: "#0f172a" }}>Statut</option>
-                  </select>
+                  {!isMobile && (
+                    <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
+                      style={{ padding: "11px 12px", fontSize: 13, fontWeight: 700, borderRadius: 10,
+                        border: "1.5px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.12)",
+                        color: statusFilter ? "white" : "rgba(255,255,255,0.6)", outline: "none", cursor: "pointer" }}>
+                      <option value="" style={{ color: "#0f172a" }}>Statut</option>
+                      {STATUS_OPTIONS.map((s) => <option key={s} value={s} style={{ color: "#0f172a" }}>{s}</option>)}
+                    </select>
+                  )}
+                  {!isMobile && (
+                    <select value={projectSort} onChange={(e) => setProjectSort(e.target.value as ProjectSortOption)}
+                      style={{ padding: "11px 12px", fontSize: 13, fontWeight: 700, borderRadius: 10,
+                        border: "1.5px solid rgba(255,255,255,0.25)", background: "rgba(255,255,255,0.12)",
+                        color: "white", outline: "none", cursor: "pointer" }}>
+                      <option value="fabrication_desc" style={{ color: "#0f172a" }}>Fabrication ↓</option>
+                      <option value="installation_asc" style={{ color: "#0f172a" }}>Pose ↑</option>
+                      <option value="client_asc" style={{ color: "#0f172a" }}>Client A→Z</option>
+                      <option value="project_number_asc" style={{ color: "#0f172a" }}>N° projet</option>
+                      <option value="status_asc" style={{ color: "#0f172a" }}>Statut</option>
+                    </select>
+                  )}
                 </div>
                 {/* Right: actions */}
                 <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
@@ -4257,15 +4261,15 @@ useEffect(() => {
 
             {/* Stat cards inside blue header — projects tab only */}
             {activeTab === "projects" && (
-              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)", gap: 16, padding: "20px 0 24px 0" }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(3, 1fr)" : "repeat(3, 1fr)", gap: isMobile ? 8 : 16, padding: isMobile ? "10px 0 12px 0" : "20px 0 24px 0" }}>
                 {[
-                  { title: "PROJETS EN COURS", value: projects.filter((p) => p.status !== "Terminé").length },
-                  { title: "EN FABRICATION", value: fabricationCount },
-                  { title: "PRÊTS POUR POSE", value: readyInstallCount },
+                  { title: "En cours", value: projects.filter((p) => p.status !== "Terminé").length },
+                  { title: "Fabrication", value: fabricationCount },
+                  { title: "Prêt pose", value: readyInstallCount },
                 ].map(stat => (
-                  <div key={stat.title} style={{ background: "rgba(255,255,255,0.1)", borderRadius: 16, padding: "20px 24px", backdropFilter: "blur(4px)", border: "1px solid rgba(255,255,255,0.15)" }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 10 }}>{stat.title}</div>
-                    <div style={{ fontSize: 48, fontWeight: 900, color: "white", lineHeight: 1 }}>{stat.value}</div>
+                  <div key={stat.title} style={{ background: "rgba(255,255,255,0.1)", borderRadius: isMobile ? 10 : 16, padding: isMobile ? "10px 8px" : "20px 24px", backdropFilter: "blur(4px)", border: "1px solid rgba(255,255,255,0.15)" }}>
+                    <div style={{ fontSize: isMobile ? 9 : 11, fontWeight: 800, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: isMobile ? 4 : 10 }}>{stat.title}</div>
+                    <div style={{ fontSize: isMobile ? 28 : 48, fontWeight: 900, color: "white", lineHeight: 1 }}>{stat.value}</div>
                   </div>
                 ))}
               </div>
