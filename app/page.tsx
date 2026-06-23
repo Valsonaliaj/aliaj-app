@@ -4020,8 +4020,8 @@ useEffect(() => {
             flexDirection: isMobile ? "row" : "column",
             justifyContent: "space-between",
             gap: 16,
-            height: "100vh",
-            overflowY: "auto",
+            height: isMobile ? "auto" : "100vh",
+            overflowY: isMobile ? "visible" : "auto",
             overflowX: isMobile ? "auto" : "visible",
           }}
         >
