@@ -259,6 +259,37 @@ const PRODUCT_CATALOG: CatalogProduct[] = [
   // --- Divers ---
   { key: "tape_alu", label: "Tape Alu 50mm x45m", image: "https://www.bermabru.be/static/uploads/pictures/large/38761760-8fe6-4edc-a36f-5a3e606e2b2d.png", url: "https://www.bermabru.be/fr_BE/p/tape-alu-50mm-x45m/25969/", category: "Divers", color: "#e2e8f0" },
   { key: "poubelle_hailo", label: "Poubelle Hailo Easy-Cargo 30/19L", image: "https://www.bermabru.be/static/uploads/pictures/small/e8ab79b1-b36b-45fb-b3b6-4b3ea6d30548.png", url: "https://www.bermabru.be/fr_BE/p/poubelle-hailo-easy-cargo-30-19l-gris/2967/", category: "Divers", color: "#f1f5f9" },
+  // --- Hafele - Fixations Cabineo ---
+  { key: "cabineo_8", label: "Ferrure Cabineo 8mm (×50)", image: "", url: "https://www.hafele.be/fr/product/ferrure-d-assemblage-de-corps-lamello-cabineo/26791252/?MasterSKU=P-00861422", category: "Fixations", color: "#f1f5f9" },
+  { key: "cabineo_12", label: "Ferrure Cabineo 12mm (×50)", image: "", url: "https://www.hafele.be/fr/product/ferrure-d-assemblage-de-corps-lamello-cabineo/26791254/?MasterSKU=P-00861422", category: "Fixations", color: "#f1f5f9" },
+  { key: "bloc_visser_haut", label: "Bloc à Visser + Plaque (régl. hauteur)", image: "", url: "https://www.hafele.be/fr/product/bloc-visser-avec-plaque-visser-et-r-glage-de-l-inclinaison-en-hauteur-et-lat-ral/28332970/?MasterSKU=P-00862075", category: "Fixations", color: "#f1f5f9" },
+  { key: "bloc_visser_lat", label: "Bloc à Visser + Plaque (régl. latéral)", image: "", url: "https://www.hafele.be/fr/product/bloc-visser-avec-plaque-visser-et-r-glage-de-l-inclinaison-en-hauteur-et-lat-ral/28332971/?MasterSKU=P-00862075", category: "Fixations", color: "#f1f5f9" },
+  { key: "taquet_acier_5mm", label: "Taquet Enficher Acier Ø5mm", image: "", url: "https://www.hafele.be/fr/product/taquet-enficher-dans-diam-tre-de-per-age-5-mm-acier/P-00861928/", category: "Fixations", color: "#cbd5e1" },
+  { key: "taquet_acier_capuchon", label: "Taquet Acier Ø5mm + Capuchon", image: "", url: "https://www.hafele.be/fr/product/taquet-enficher-dans-diam-tre-de-per-age-5-mm-acier-avec-capuchon-en-plastique/P-00862012/", category: "Fixations", color: "#cbd5e1" },
+  { key: "outil_cabineo", label: "Outil de Montage Lamello Cabineo", image: "", url: "https://www.hafele.be/fr/product/outil-de-montage-lamello-cabineo/00126605/?MasterSKU=P-00901469", category: "Fixations", color: "#e2e8f0" },
+  // --- Hafele - Visserie ---
+  { key: "hospa_jet_4x16", label: "Vis Hospa-Jet 4×16mm (galva)", image: "", url: "https://www.hafele.be/fr/product/vis-pour-panneau-d-agglom-r-hospa-jet-t-te-frais-e-renforc-e-eet-filetage-complet-avec-nervures-galvanis-/01791075/?MasterSKU=P-00900178", category: "Visserie", color: "#cbd5e1" },
+  { key: "hospa_jet_4x25", label: "Vis Hospa-Jet 4×25mm (galva)", image: "", url: "https://www.hafele.be/fr/product/vis-pour-panneau-d-agglom-r-hospa-jet-t-te-frais-e-renforc-e-eet-filetage-complet-avec-nervures-galvanis-/01791081/?MasterSKU=P-00900178", category: "Visserie", color: "#cbd5e1" },
+  { key: "hospa_jet_5x40", label: "Vis Hospa-Jet 5×40mm (galva)", image: "", url: "https://www.hafele.be/fr/product/vis-pour-panneau-d-agglom-r-hospa-jet-t-te-frais-e-renforc-e-eet-filetage-complet-avec-nervures-galvanis-/01791086/?MasterSKU=P-00900178", category: "Visserie", color: "#cbd5e1" },
+  { key: "vis_euro_varianta", label: "Vis Euro Varianta Ø5mm Bois", image: "", url: "https://www.hafele.be/fr/product/vis-euro-varianta-t-te-frais-e-li-acier-filet-complet-pour-per-age-5-mm-dans-bois/01341724/?MasterSKU=P-00900094", category: "Visserie", color: "#e2e8f0" },
+  // --- Hafele - Charnières ---
+  { key: "blum_clip_top_blumotion", label: "Charnière Blum Clip Top Blumotion 110°", image: "", url: "https://www.hafele.be/fr/product/charni-re-corps-blum-clip-top-blumotion-110-pose-en-semi-applique-jumel-e/34242661/?MasterSKU=P-00898219", category: "Charnières", color: "#e2e8f0" },
+  { key: "embase_blum_clip_top", label: "Embase Blum Clip Top (à visser)", image: "", url: "https://www.hafele.be/fr/product/embase-en-croix-clip-top-blumotion-clip-top-clip-visser-avec-des-vis-pour-panneaux-d-agglom-r-/34220800/?MasterSKU=P-00898872", category: "Charnières", color: "#e2e8f0" },
+  { key: "aventos_hk_s", label: "Aventos HK-S Blum (relevage)", image: "", url: "https://www.hafele.be/fr/product/ferrure-de-relevage-blum-aventos-hk-s/37285568/?MasterSKU=P-01498365", category: "Charnières", color: "#e2e8f0" },
+  // --- Hafele - Penderie ---
+  { key: "support_tringle_oval_30x15", label: "Support Central Tringle Ovale 30×15", image: "", url: "https://www.hafele.be/fr/product/support-central-de-tringle-d-armoire-pour-tringle-d-armoire-ova-30-x-15-mm/80207210/?MasterSKU=P-00925712", category: "Penderie", color: "#e2e8f0" },
+  // --- Hafele - Accessoires ---
+  { key: "baguette_protection_13x7", label: "Baguette Protection 13×7mm", image: "", url: "https://www.hafele.be/fr/product/baguettes-de-protection-droit-dimensions-13-x-7-mm-l-x-h-/80890000/?MasterSKU=P-00858522", category: "Accessoires", color: "#fafafa" },
+  // --- Glissières de tiroir ---
+  { key: "strongride_500", label: "StrongRide Softclose 500mm", image: "https://www.meubelbeslagonline.nl//Files/2/23000/23621/ProductPhotos/620/2024410470.jpg", url: "https://www.meubelbeslagonline.nl/strongride-ladegeleider-softclose-500-mm", category: "Glissières", color: "#f1f5f9" },
+  { key: "strongride_400", label: "StrongRide Softclose 400mm", image: "https://www.meubelbeslagonline.nl//Files/2/23000/23621/ProductPhotos/620/2024410503.jpg", url: "https://www.meubelbeslagonline.nl/strongride-ladegeleider-softclose-400-mm", category: "Glissières", color: "#f1f5f9" },
+  { key: "strongride_350", label: "StrongRide Softclose 350mm", image: "https://www.meubelbeslagonline.nl//Files/2/23000/23621/ProductPhotos/620/2024410560.jpg", url: "https://www.meubelbeslagonline.nl/strongride-ladegeleider-softclose-350-mm", category: "Glissières", color: "#f1f5f9" },
+  { key: "strongride_300", label: "StrongRide Softclose 300mm", image: "https://www.meubelbeslagonline.nl//Files/2/23000/23621/ProductPhotos/620/2024410596.jpg", url: "https://www.meubelbeslagonline.nl/strongride-ladegeleider-softclose-300-mm", category: "Glissières", color: "#f1f5f9" },
+  // --- IKEA MAXIMERA ---
+  { key: "maximera_moyen_80x60", label: "MAXIMERA Tiroir Moyen Blanc 80×60", image: "https://www.ikea.com/be/fr/images/products/maximera-tiroir-moyen-blanc__0520123_pe642007_s5.jpg?f=u", url: "https://www.ikea.com/be/fr/p/maximera-tiroir-moyen-blanc-30319346/", category: "Tiroirs IKEA", color: "#f8fafc" },
+  { key: "maximera_moyen_60x60", label: "MAXIMERA Tiroir Moyen Blanc 60×60", image: "https://www.ikea.com/be/fr/images/products/maximera-tiroir-moyen-blanc__0520117_pe642003_s5.jpg?f=u", url: "https://www.ikea.com/be/fr/p/maximera-tiroir-moyen-blanc-90319348/", category: "Tiroirs IKEA", color: "#f8fafc" },
+  { key: "maximera_bas_80x60", label: "MAXIMERA Tiroir Bas Blanc 80×60", image: "https://www.ikea.com/be/fr/images/products/maximera-tiroir-bas-blanc__0520105_pe641995_s5.jpg?f=u", url: "https://www.ikea.com/be/fr/p/maximera-tiroir-bas-blanc-10319352/", category: "Tiroirs IKEA", color: "#f8fafc" },
+  { key: "maximera_bas_60x60", label: "MAXIMERA Tiroir Bas Blanc 60×60", image: "https://www.ikea.com/be/fr/images/products/maximera-tiroir-bas-blanc__0583452_pe671220_s5.jpg?f=u", url: "https://www.ikea.com/be/fr/p/maximera-tiroir-bas-blanc-70319354/", category: "Tiroirs IKEA", color: "#f8fafc" },
 ];
 
 const BELGIUM_HOLIDAYS_2026 = [
