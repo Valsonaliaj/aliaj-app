@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 import DevisPage from "./devis/DevisPage";
+import DecoupePage from "./decoupe/DecoupePage";
 
-type TabType = "projects" | "calendar" | "tasks" | "purchases" | "devis";
+type TabType = "projects" | "calendar" | "tasks" | "purchases" | "devis" | "decoupe";
 type CalendarViewMode = "day" | "week" | "month";
 type ProjectSortOption =
   | "fabrication_desc"
@@ -866,7 +867,7 @@ export default function Home() {
   }, [selectedProject, role]);
 
   useEffect(() => {
-    if (role === "atelier" && (activeTab === "tasks" || activeTab === "devis")) {
+    if (role === "atelier" && (activeTab === "tasks" || activeTab === "devis" || activeTab === "decoupe")) {
       setActiveTab("projects");
     }
   }, [role, activeTab]);
@@ -4143,6 +4144,18 @@ useEffect(() => {
                   Devis
                 </button>
               )}
+
+              {role === "bureau" && (
+                <button
+                  onClick={() => setActiveTab("decoupe")}
+                  style={{
+                    ...(activeTab === "decoupe" ? sidebarActiveButton : sidebarButton),
+                    marginTop: 26,
+                  }}
+                >
+                  Découpe
+                </button>
+              )}
             </div>
           </div>
 
@@ -4579,6 +4592,8 @@ useEffect(() => {
             role === "bureau" ? renderTasks() : null
           ) : activeTab === "devis" ? (
             role === "bureau" ? <DevisPage supabase={supabase} projects={projects} /> : null
+          ) : activeTab === "decoupe" ? (
+            role === "bureau" ? <DecoupePage supabase={supabase} projects={projects} /> : null
           ) : (
             renderPurchases()
           )}
